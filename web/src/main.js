@@ -27,14 +27,24 @@ Nprogress.start()
  * 无需在这块结束，会在路由中间件中结束此块内容
  * */
 
+ import * as ElementPlusIconsVue from '@element-plus/icons-vue'
+
+
+
+
 const app = createApp(App)
 app.config.productionTip = false
+
+for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
+  app.component(key, component)
+}
 
 app
   .use(run)
   .use(store)
   .use(auth)
   .use(router)
+ 
   .use(ElementPlus, { locale: zhCn })
   .mount('#app')
 

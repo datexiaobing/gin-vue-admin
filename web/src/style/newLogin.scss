@@ -13,21 +13,22 @@
     .login_panel {
         position: absolute;
         top: 3vh;
-        left: 2vw;
+        right: 2vw;
         width: 96vw;
         height: 94vh;
-        background-color: rgba(255, 255, 255, .8);
+        // background-color: rgba(255, 255, 255, .8);
         border-radius: 10px;
         display: flex;
         align-items: center;
-        justify-content: space-evenly;
-        .login_panel_right {
-            background-image: url("@/assets/login_left.svg");
-            background-size: cover;
-            width: 40%;
-            height: 60%;
-            float: right !important;
-        }
+        justify-content: right;
+        margin-right: 10%;
+        // .login_panel_right {
+        //     // background-image: url("@/assets/login_left.svg");
+        //     background-size: cover;
+        //     width: 40%;
+        //     height: 60%;
+        //     float: right !important;
+        // }
         .login_panel_form {
             width: 420px;
             background-color: #fff;
