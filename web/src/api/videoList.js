@@ -95,3 +95,61 @@ export const getVideoListList = (params) => {
     params
   })
 }
+
+// active videos list
+export const getVideoListListActive = (params) => {
+  return service({
+    url: '/videoList/getVideoListListActive',
+    method: 'get',
+    params
+  })
+}
+// waiting videos list
+export const getVideoListListWaiting = (params) => {
+  return service({
+    url: '/videoList/getVideoListListWaiting',
+    method: 'get',
+    params
+  })
+}
+// stop videos list
+export const getVideoListListStop = (params) => {
+  return service({
+    url: '/videoList/getVideoListListStop',
+    method: 'get',
+    params
+  })
+}
+// 暂停下载
+export const getVideoListListPause = (data) => {
+  return service({
+    url: '/videoList/getVideoListListPause',
+    method: 'POST',
+    data
+  })
+}
+// 恢复下载
+export const getVideoListListUnpause = (data) => {
+  return service({
+    url: '/videoList/getVideoListListUnpause',
+    method: 'POST',
+    data
+  })
+}
+// 恢复下载
+export const getVideoListListRemove = (data) => {
+  return service({
+    url: '/videoList/getVideoListListRemove',
+    method: 'POST',
+    data
+  })
+}
+
+// file list
+export const getVideoListListFile = (params) => {
+  return service({
+    url: '/videoList/getVideoListListFile',
+    method: 'get',
+    params
+  })
+}

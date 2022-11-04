@@ -12,7 +12,7 @@
 
 <script>
 export default {
-  name: 'Video'
+  name: 'VideoList'
 }
 </script>
 <script setup>

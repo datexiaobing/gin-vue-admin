@@ -6,7 +6,7 @@
                 <el-button icon="UploadFilled"> 新建</el-button>
                 <el-button icon="VideoPlay" disabled> 开始</el-button>
                 <el-button icon="VideoPause" disabled> 暂停</el-button>
-                <el-button icon="Delete"> 删除</el-button>
+                <el-button icon="Delete" @click="remove"> 删除</el-button>
             </el-button-group>
         </el-row>
     </el-container>
@@ -23,32 +23,36 @@
         >
         <el-table-column type="selection" width="55" />
 
-        <el-table-column align="left" label="文件名称" prop="videoTitle"  />
+        <el-table-column align="left" label="文件名称" prop="videoTitle"  >
+          <template #default="scope">
+            {{scope.row.fileName}}
+          </template>
+        </el-table-column>
         <el-table-column align="left" label="文件大小" width="120" >
             <template #default="scope">
-                {{(scope.row.videoSize/1024).toFixed(2)+'G'}}
+                {{bytesToSize(scope.row.fileLength)}}
             </template>
         </el-table-column>
         <el-table-column align="left" label="进度" width="200" >
-            
+            <template #default="scope">
                 <div class="pro-cell">
                     <el-progress 
                     status="success"
                     :stroke-width="10" 
-                    :percentage="100" />
+                    :percentage="(scope.row.completedLength/scope.row.fileLength).toFixed(2)*100" />
                 </div>
-            
+            </template>
         </el-table-column>
         <el-table-column align="left" label="上传/下载" prop="videoTitle" width="120" >
             <template #default="scope">
                 <div class="speed-cell">
                     <div class="in-cell">
                         <el-icon><Top /></el-icon>
-                        <span>{{scope.row.videoDownloadSpeed}} b/s</span>
+                        <span>{{scope.row.downloadSpeed}} b/s</span>
                     </div>
                      <div>
                         <el-icon><Bottom /></el-icon>
-                        <span>0 b/s</span>
+                         <span>{{scope.row.uploadSpeed}} b/s</span>
                     </div>
                 </div>
             </template>
@@ -77,14 +81,40 @@ import {
   deleteVideoListByIds,
   updateVideoList,
   findVideoList,
-  getVideoListList
+  getVideoListList,
+  getVideoListListStop,
+  getVideoListListRemove,
 } from '@/api/videoList'
 
 // 全量引入格式化工具 请按需保留
-import { getDictFunc, formatDate, formatBoolean, filterDict } from '@/utils/format'
+import { getDictFunc, formatDate, formatBoolean, filterDict,bytesToSize } from '@/utils/format'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { ref, reactive } from 'vue'
 
+// 删除任务
+const remove=async()=>{
+  const ids = []
+  if (multipleSelection.value.length === 0) {
+    ElMessage({
+      type: 'warning',
+      message: '请选择要删除的任务'
+    })
+    return
+  }
+  multipleSelection.value &&
+    multipleSelection.value.map(item => {
+      ids.push(item.gid)
+    })
+  // console.log(ids)
+  const res = await  getVideoListListRemove({ grids:ids })
+  if (res.code === 0) {
+    ElMessage({
+      type: 'success',
+      message: '删除成功'
+    })
+    getTableData()
+  }
+}
 
 
 const barformat =  (percentage) => (percentage === 100 ? '100%' : `${percentage}%`)
@@ -142,9 +172,20 @@ const handleCurrentChange = (val) => {
 // 查询
 const getTableData = async() => {
   searchInfo.value.videoDownloadStatus = 3
-  const table = await getVideoListList({ page: page.value, pageSize: pageSize.value, ...searchInfo.value })
+  const table = await getVideoListListStop({ page: page.value, pageSize: pageSize.value, ...searchInfo.value })
   if (table.code === 0) {
     tableData.value = table.data.list
+    tableData.value.forEach(e=>{
+      // 文件名
+      let dir = e.dir
+      let path = e.files[0].path
+      e.fileLength = e.files[0].length
+      e.completedLength =e.files[0].completedLength
+      let temp = path.replace(dir,"").split('/')
+      // console.log(temp)
+      e.fileName=path
+
+    })
     total.value = table.data.total
     page.value = table.data.page
     pageSize.value = table.data.pageSize

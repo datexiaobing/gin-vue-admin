@@ -1,22 +1,25 @@
 package cloud
 
 import (
+	"net/http"
+	"strconv"
+	"time"
+
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
-    "github.com/flipped-aurora/gin-vue-admin/server/model/cloud"
-    "github.com/flipped-aurora/gin-vue-admin/server/model/common/request"
-    cloudReq "github.com/flipped-aurora/gin-vue-admin/server/model/cloud/request"
-    "github.com/flipped-aurora/gin-vue-admin/server/model/common/response"
-    "github.com/flipped-aurora/gin-vue-admin/server/service"
-    "github.com/gin-gonic/gin"
-    "go.uber.org/zap"
-    "github.com/flipped-aurora/gin-vue-admin/server/utils"
+	"github.com/flipped-aurora/gin-vue-admin/server/model/cloud"
+	cloudReq "github.com/flipped-aurora/gin-vue-admin/server/model/cloud/request"
+	"github.com/flipped-aurora/gin-vue-admin/server/model/common/request"
+	"github.com/flipped-aurora/gin-vue-admin/server/model/common/response"
+	"github.com/flipped-aurora/gin-vue-admin/server/service"
+	"github.com/flipped-aurora/gin-vue-admin/server/utils"
+	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 )
 
 type VideoListApi struct {
 }
 
 var videoListService = service.ServiceGroupApp.CloudServiceGroup.VideoListService
-
 
 // CreateVideoList 创建VideoList
 // @Tags VideoList
@@ -34,9 +37,9 @@ func (videoListApi *VideoListApi) CreateVideoList(c *gin.Context) {
 		response.FailWithMessage(err.Error(), c)
 		return
 	}
-    videoList.CreatedBy = utils.GetUserID(c)
+	videoList.CreatedBy = utils.GetUserID(c)
 	if err := videoListService.CreateVideoList(videoList); err != nil {
-        global.GVA_LOG.Error("创建失败!", zap.Error(err))
+		global.GVA_LOG.Error("创建失败!", zap.Error(err))
 		response.FailWithMessage("创建失败", c)
 	} else {
 		response.OkWithMessage("创建成功", c)
@@ -59,9 +62,9 @@ func (videoListApi *VideoListApi) DeleteVideoList(c *gin.Context) {
 		response.FailWithMessage(err.Error(), c)
 		return
 	}
-    videoList.DeletedBy = utils.GetUserID(c)
+	videoList.DeletedBy = utils.GetUserID(c)
 	if err := videoListService.DeleteVideoList(videoList); err != nil {
-        global.GVA_LOG.Error("删除失败!", zap.Error(err))
+		global.GVA_LOG.Error("删除失败!", zap.Error(err))
 		response.FailWithMessage("删除失败", c)
 	} else {
 		response.OkWithMessage("删除成功", c)
@@ -79,14 +82,14 @@ func (videoListApi *VideoListApi) DeleteVideoList(c *gin.Context) {
 // @Router /videoList/deleteVideoListByIds [delete]
 func (videoListApi *VideoListApi) DeleteVideoListByIds(c *gin.Context) {
 	var IDS request.IdsReq
-    err := c.ShouldBindJSON(&IDS)
+	err := c.ShouldBindJSON(&IDS)
 	if err != nil {
 		response.FailWithMessage(err.Error(), c)
 		return
 	}
-    deletedBy := utils.GetUserID(c)
-	if err := videoListService.DeleteVideoListByIds(IDS,deletedBy); err != nil {
-        global.GVA_LOG.Error("批量删除失败!", zap.Error(err))
+	deletedBy := utils.GetUserID(c)
+	if err := videoListService.DeleteVideoListByIds(IDS, deletedBy); err != nil {
+		global.GVA_LOG.Error("批量删除失败!", zap.Error(err))
 		response.FailWithMessage("批量删除失败", c)
 	} else {
 		response.OkWithMessage("批量删除成功", c)
@@ -109,9 +112,9 @@ func (videoListApi *VideoListApi) UpdateVideoList(c *gin.Context) {
 		response.FailWithMessage(err.Error(), c)
 		return
 	}
-    videoList.UpdatedBy = utils.GetUserID(c)
+	videoList.UpdatedBy = utils.GetUserID(c)
 	if err := videoListService.UpdateVideoList(videoList); err != nil {
-        global.GVA_LOG.Error("更新失败!", zap.Error(err))
+		global.GVA_LOG.Error("更新失败!", zap.Error(err))
 		response.FailWithMessage("更新失败", c)
 	} else {
 		response.OkWithMessage("更新成功", c)
@@ -135,7 +138,7 @@ func (videoListApi *VideoListApi) FindVideoList(c *gin.Context) {
 		return
 	}
 	if revideoList, err := videoListService.GetVideoList(videoList.ID); err != nil {
-        global.GVA_LOG.Error("查询失败!", zap.Error(err))
+		global.GVA_LOG.Error("查询失败!", zap.Error(err))
 		response.FailWithMessage("查询失败", c)
 	} else {
 		response.OkWithData(gin.H{"revideoList": revideoList}, c)
@@ -159,14 +162,171 @@ func (videoListApi *VideoListApi) GetVideoListList(c *gin.Context) {
 		return
 	}
 	if list, total, err := videoListService.GetVideoListInfoList(pageInfo); err != nil {
-	    global.GVA_LOG.Error("获取失败!", zap.Error(err))
-        response.FailWithMessage("获取失败", c)
-    } else {
-        response.OkWithDetailed(response.PageResult{
-            List:     list,
-            Total:    total,
-            Page:     pageInfo.Page,
-            PageSize: pageInfo.PageSize,
-        }, "获取成功", c)
-    }
+		global.GVA_LOG.Error("获取失败!", zap.Error(err))
+		response.FailWithMessage("获取失败", c)
+	} else {
+		response.OkWithDetailed(response.PageResult{
+			List:     list,
+			Total:    total,
+			Page:     pageInfo.Page,
+			PageSize: pageInfo.PageSize,
+		}, "获取成功", c)
+	}
+}
+
+// active search
+func (videoListApi *VideoListApi) GetVideoListListActive(c *gin.Context) {
+	var pageInfo cloudReq.VideoListSearch
+	err := c.ShouldBindQuery(&pageInfo)
+	if err != nil {
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+	if list, total, err := videoListService.GetVideoListInfoListActive(pageInfo); err != nil {
+		global.GVA_LOG.Error("获取失败!", zap.Error(err))
+		response.FailWithMessage("获取失败", c)
+	} else {
+		response.OkWithDetailed(response.PageResult{
+			List:     list,
+			Total:    total,
+			Page:     pageInfo.Page,
+			PageSize: pageInfo.PageSize,
+		}, "获取成功", c)
+	}
+}
+
+// waiting search
+func (videoListApi *VideoListApi) GetVideoListListWaiting(c *gin.Context) {
+	var pageInfo cloudReq.VideoListSearch
+	err := c.ShouldBindQuery(&pageInfo)
+	if err != nil {
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+	if list, total, err := videoListService.GetVideoListInfoListWaiting(pageInfo); err != nil {
+		global.GVA_LOG.Error("获取失败!", zap.Error(err))
+		response.FailWithMessage("获取失败", c)
+	} else {
+		response.OkWithDetailed(response.PageResult{
+			List:     list,
+			Total:    total,
+			Page:     pageInfo.Page,
+			PageSize: pageInfo.PageSize,
+		}, "获取成功", c)
+	}
+}
+
+// stop search
+func (videoListApi *VideoListApi) GetVideoListListStop(c *gin.Context) {
+	var pageInfo cloudReq.VideoListSearch
+	err := c.ShouldBindQuery(&pageInfo)
+	if err != nil {
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+	if list, total, err := videoListService.GetVideoListInfoListStop(pageInfo); err != nil {
+		global.GVA_LOG.Error("获取失败!", zap.Error(err))
+		response.FailWithMessage("获取失败", c)
+	} else {
+		response.OkWithDetailed(response.PageResult{
+			List:     list,
+			Total:    total,
+			Page:     pageInfo.Page,
+			PageSize: pageInfo.PageSize,
+		}, "获取成功", c)
+	}
+}
+
+// pause
+func (videoListApi *VideoListApi) GetVideoListListPause(c *gin.Context) {
+	var videoList request.GridsReq
+	err := c.ShouldBindJSON(&videoList)
+	if err != nil {
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+
+	if err := videoListService.GetVideoListInfoListPause(videoList); err != nil {
+		global.GVA_LOG.Error("暂停任务失败!", zap.Error(err))
+		response.FailWithMessage("暂停任务失败，请稍后再试", c)
+	} else {
+		response.OkWithMessage("暂停任务成功", c)
+	}
+}
+
+// unpause
+func (videoListApi *VideoListApi) GetVideoListListUnpause(c *gin.Context) {
+	var videoList request.GridsReq
+	err := c.ShouldBindJSON(&videoList)
+	if err != nil {
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+
+	if err := videoListService.GetVideoListInfoListUnpause(videoList); err != nil {
+		global.GVA_LOG.Error("恢复任务失败!", zap.Error(err))
+		response.FailWithMessage("恢复任务失败", c)
+	} else {
+		response.OkWithMessage("恢复任务成功", c)
+	}
+}
+
+// remove
+func (videoListApi *VideoListApi) GetVideoListListRemove(c *gin.Context) {
+	var videoList request.GridsReq
+	err := c.ShouldBindJSON(&videoList)
+	if err != nil {
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+	if err := videoListService.GetVideoListInfoListRemove(videoList); err != nil {
+		global.GVA_LOG.Error("删除任务失败!", zap.Error(err))
+		response.FailWithMessage("删除任务失败,请稍后再试", c)
+	} else {
+		response.OkWithMessage("删除任务成功", c)
+	}
+}
+
+// upload 种子
+func (videoListApi *VideoListApi) GetVideoListListUpload(c *gin.Context) {
+	// fmt.Println("+++++++++++++++")
+	file, _ := c.FormFile("file") // 获取文件
+	// fmt.Println(file.Filename)
+
+	unix_int := time.Now().Unix()                    // 时间戳，int类型
+	time_unix_str := strconv.FormatInt(unix_int, 10) // 讲int类型转为string类型，方便拼接，使用sprinf也可以
+	// 防止重名文件
+	// base_path := "D:\\myWork\\korea\\cloud\\gin-vue-admin\\server\\upload\\"
+	base_path := "/home/korea/cloud/upload/"
+
+	file_path := base_path + time_unix_str + file.Filename // 设置保存文件的路径，不要忘了后面的文件名
+
+	c.SaveUploadedFile(file, file_path) // 保存文件
+	// fmt.Println("file_path:", file_path)
+
+	videoListService.DownLoadTorrent(file_path)
+
+	c.String(http.StatusOK, "上传成功")
+
+}
+
+// file search
+func (videoListApi *VideoListApi) GetVideoListListFile(c *gin.Context) {
+	var pageInfo cloudReq.VideoListSearch
+	err := c.ShouldBindQuery(&pageInfo)
+	if err != nil {
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+	if list, total, err := videoListService.GetVideoListInfoListFile(pageInfo); err != nil {
+		global.GVA_LOG.Error("获取失败!", zap.Error(err))
+		response.FailWithMessage("获取失败", c)
+	} else {
+		response.OkWithDetailed(response.PageResult{
+			List:     list,
+			Total:    total,
+			Page:     pageInfo.Page,
+			PageSize: pageInfo.PageSize,
+		}, "获取成功", c)
+	}
 }
