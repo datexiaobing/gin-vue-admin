@@ -13,6 +13,14 @@ type Register struct {
 	AuthorityIds []uint `json:"authorityIds"`
 }
 
+// 验证URL
+type OauthToken struct {
+	Sign      string `json:"sign" form:"sign"`
+	Domain    string `form:"domain" json:"domain"`
+	Expires   string `json:"expires" form:"expires"`
+	Timestamp string `json:"timestamp" form:"timestamp"`
+}
+
 // User login structure
 type Login struct {
 	Username  string `json:"username"`  // 用户名

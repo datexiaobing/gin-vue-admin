@@ -4,11 +4,11 @@
         <el-row>
             <el-button-group class="">
               <el-space>
-                <el-button icon="UploadFilled"> 上传</el-button>
+                <el-button icon="UploadFilled" disabled> 上传</el-button>
                 <el-button icon="HelpFilled"> 转码</el-button>
                 <el-button icon="Delete"> 删除</el-button>
-                <el-button icon="Back"> 上一级</el-button>
-                <el-button icon="Refresh" > 刷新</el-button>
+                <el-button icon="Back"  @click="getPrewFolder"> 上一级</el-button>
+                <el-button icon="Refresh" @click="getTableData"> 刷新</el-button>
               </el-space>
             </el-button-group>
         </el-row>
@@ -25,15 +25,25 @@
     >
     <el-table-column type="selection" width="55" />
 
-    <el-table-column align="left" label="文件名称" prop="fileName"  />
+    <el-table-column align="left" label="文件名称" prop="fileName"  >
+        <template #default="scope">
+          <el-icon v-if="scope.row.isDir"><Folder /></el-icon>
+          <el-icon v-else><Files /></el-icon>
+          <el-link 
+            v-if="scope.row.isDir"
+          :underline="false" 
+          @click="nextFolder(scope.row)">{{scope.row.fileName}}</el-link>
+          <span v-else >{{scope.row.fileName}}</span>
+        </template>
+    </el-table-column>
     <!-- if 子目录，更新datalist -->
     <el-table-column align="left" label="文件大小" width="120" >
         <template #default="scope">
-            {{(scope.row.fileSize/1024).toFixed(2)+'G'}}
+            {{bytesToSize(scope.row.fileSize)}}
         </template>
     </el-table-column>
     <el-table-column align="left" label="修改时间" width="180" >
-      <template #default="scope">{{ formatDate(scope.row.UpdatedAt) }}</template>
+      <template #default="scope">{{ formatDate(scope.row.modTime) }}</template>
     </el-table-column>
 
     <el-table-column align="left" label="操作" width="330">
@@ -70,11 +80,44 @@ import {
   findFileDownload,
   getFileDownloadList
 } from '@/api/fileDownload'
-
+import {
+  getVideoListListFileDone,
+  
+} from '@/api/videoList'
 // 全量引入格式化工具 请按需保留
-import { getDictFunc, formatDate, formatBoolean, filterDict } from '@/utils/format'
+import { getDictFunc, formatDate, formatBoolean, filterDict,bytesToSize } from '@/utils/format'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { ref, reactive } from 'vue'
+
+
+const dir=ref("/")
+
+// 进入子目录
+const nextFolder = async(row)=>{
+  let foldrName = row.fileName 
+  dir.value=dir.value+foldrName
+  getTableData()
+
+}
+
+// 返回上一级
+const getPrewFolder=async()=>{
+  let newDirList = dir.value.split('/')
+  // let newDirList="/女浩克.She-Hulk.Attorney.at.Law.S01E08/121221/22222".split('/')
+  newDirList.pop()
+  // console.log(newDirList)
+  if(newDirList===""){
+    dir.value="/"
+    getTableData()
+    // console.log('11')
+  }else{
+    let n=newDirList.join("/")
+    // console.log("n:",n)
+    dir.value=n
+    getTableData()
+  }
+}
+
 
 // 自动化生成的字典（可能为空）以及字段
 const formData = ref({
@@ -127,7 +170,7 @@ const handleCurrentChange = (val) => {
 
 // 查询
 const getTableData = async() => {
-  const table = await getFileDownloadList({ page: page.value, pageSize: pageSize.value, ...searchInfo.value })
+  const table = await getVideoListListFileDone({ page: page.value, pageSize: pageSize.value, ...searchInfo.value })
   if (table.code === 0) {
     tableData.value = table.data.list
     total.value = table.data.total

@@ -4,7 +4,7 @@
         <el-row>
             <el-button-group class="">
               <el-space>
-                <el-button icon="UploadFilled"> 上传</el-button>
+                <el-button icon="UploadFilled" disabled> 上传</el-button>
                 <el-button icon="Delete"> 删除</el-button>
                 <el-button icon="Back" @click="getPrewFolder"> 上一级</el-button>
                 <el-button icon="Refresh" @click="getTableData"> 刷新</el-button>
@@ -78,10 +78,11 @@ import {
   deleteFileDownloadByIds,
   updateFileDownload,
   findFileDownload,
-  getFileDownloadList
+  getFileDownloadList,
 } from '@/api/fileDownload'
 import {
   getVideoListListFile,
+  renameFile
 } from '@/api/videoList'
 
 // 全量引入格式化工具 请按需保留
@@ -96,7 +97,6 @@ const dir=ref("/")
 const nextFolder = async(row)=>{
   let foldrName = row.fileName 
   dir.value=dir.value+foldrName
-  
   getTableData()
 
 }
@@ -106,25 +106,31 @@ const getPrewFolder=async()=>{
   let newDirList = dir.value.split('/')
   // let newDirList="/女浩克.She-Hulk.Attorney.at.Law.S01E08/121221/22222".split('/')
   newDirList.pop()
-  console.log(newDirList)
+  // console.log(newDirList)
   if(newDirList===""){
     dir.value="/"
     getTableData()
-    console.log('11')
+    // console.log('11')
   }else{
     let n=newDirList.join("/")
-    console.log("n:",n)
+    // console.log("n:",n)
     dir.value=n
     getTableData()
   }
 }
 
 // 移动视频
-const moveVideo =(row)=>{
-  ElMessage({
-    type:'danger',
-    message:"尚未开发"
-  })
+const moveVideo = async(row)=>{
+  const d = await renameFile({downloadPath:row.downloadPath,fileName:row.fileName})
+  // console.log(d)
+  if(d.code===0){
+      ElMessage({
+        type:'success',
+        message:"移动成功！"
+      })
+      getTableData()
+  }
+
 }
 
 // 自动化生成的字典（可能为空）以及字段

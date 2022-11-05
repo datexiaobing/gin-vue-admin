@@ -153,3 +153,21 @@ export const getVideoListListFile = (params) => {
     params
   })
 }
+
+// remove file
+export const renameFile = (data) => {
+  return service({
+    url: '/videoList/renameFile',
+    method: 'put',
+    data
+  })
+}
+
+// file list removed
+export const getVideoListListFileDone = (params) => {
+  return service({
+    url: '/videoList/getVideoListListFileDone',
+    method: 'get',
+    params
+  })
+}

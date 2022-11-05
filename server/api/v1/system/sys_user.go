@@ -1,6 +1,7 @@
 package system
 
 import (
+	"net/http"
 	"strconv"
 
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
@@ -15,6 +16,38 @@ import (
 	"github.com/go-redis/redis/v8"
 	"go.uber.org/zap"
 )
+
+func (b *BaseApi) Oauth(c *gin.Context) {
+	var l systemReq.OauthToken
+	err := c.ShouldBindQuery(&l)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"active": false})
+		return
+	}
+
+	// ********key和ts 文件都需要带上token*******
+	// sgin对应token
+	// if l.Sign == "" {
+	// 	c.JSON(http.StatusBadRequest, gin.H{"active": false})
+	// 	return
+	// }
+	// 验证token是否失效
+	// j := utils.NewJWT()
+	// oauthData, err := j.ParseTokenForHls(l.Sign)
+	// if err != nil {
+	// 	fmt.Println(err)
+	// 	c.JSON(http.StatusBadRequest, gin.H{"active": false})
+	// 	return
+	// }
+
+	// fmt.Println(oauthData.Domain)
+	// fmt.Println(oauthData.Expires)
+
+	// fmt.Println("X-Original-URI:", c.Request.Header.Get("X-Original-URI"))
+	// fmt.Println("mydatas:", c.Request.Header.Get("Mydatas"))
+	// c.JSON(http.StatusBadRequest, gin.H{"active": false})
+	c.JSON(http.StatusOK, gin.H{"active": true})
+}
 
 // Login
 // @Tags     Base

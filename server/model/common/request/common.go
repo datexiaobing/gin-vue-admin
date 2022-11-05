@@ -24,6 +24,18 @@ type GridsReq struct {
 	Grids []string `json:"grids" form:"grids"`
 }
 
+// move file
+type FileReq struct {
+	DownloadPath string `json:"downloadPath" form:"downloadPath"`
+	FileName     string `jon:"fileName" form:"fileName"`
+}
+
+// trans video
+type TransVideoReq struct {
+	DownloadPath string `json:"downloadPath" form:"downloadPath"`
+	FileName     string `jon:"fileName" form:"fileName"`
+}
+
 // GetAuthorityId Get role by id structure
 type GetAuthorityId struct {
 	AuthorityId uint `json:"authorityId" form:"authorityId"` // 角色ID

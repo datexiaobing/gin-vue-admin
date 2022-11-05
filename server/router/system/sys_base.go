@@ -13,6 +13,8 @@ func (s *BaseRouter) InitBaseRouter(Router *gin.RouterGroup) (R gin.IRoutes) {
 	{
 		baseRouter.POST("login", baseApi.Login)
 		baseRouter.POST("captcha", baseApi.Captcha)
+		// nginx 鉴权
+		baseRouter.GET("oauth", baseApi.Oauth)
 	}
 	return baseRouter
 }

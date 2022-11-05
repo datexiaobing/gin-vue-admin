@@ -330,3 +330,56 @@ func (videoListApi *VideoListApi) GetVideoListListFile(c *gin.Context) {
 		}, "获取成功", c)
 	}
 }
+
+// file rename
+func (videoListApi *VideoListApi) RenameFiles(c *gin.Context) {
+	var videoList request.FileReq
+	err := c.ShouldBindJSON(&videoList)
+	if err != nil {
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+	if err := videoListService.RenameFile(videoList.DownloadPath, videoList.FileName); err != nil {
+		global.GVA_LOG.Error("移动文件失败!", zap.Error(err))
+		response.FailWithMessage(err.Error(), c)
+	} else {
+		response.OkWithMessage("移动文件成功", c)
+	}
+}
+
+// file search
+func (videoListApi *VideoListApi) GetVideoListListFileDone(c *gin.Context) {
+	var pageInfo cloudReq.VideoListSearch
+	err := c.ShouldBindQuery(&pageInfo)
+	if err != nil {
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+	if list, total, err := videoListService.GetVideoListInfoListFileDone(pageInfo); err != nil {
+		global.GVA_LOG.Error("获取失败!", zap.Error(err))
+		response.FailWithMessage("获取失败", c)
+	} else {
+		response.OkWithDetailed(response.PageResult{
+			List:     list,
+			Total:    total,
+			Page:     pageInfo.Page,
+			PageSize: pageInfo.PageSize,
+		}, "获取成功", c)
+	}
+}
+
+// file rename
+func (videoListApi *VideoListApi) TransVideo(c *gin.Context) {
+	var videoList request.TransVideoReq
+	err := c.ShouldBindJSON(&videoList)
+	if err != nil {
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+	if err := videoListService.TransVideo(videoList); err != nil {
+		global.GVA_LOG.Error("移动文件失败!", zap.Error(err))
+		response.FailWithMessage(err.Error(), c)
+	} else {
+		response.OkWithMessage("移动文件成功", c)
+	}
+}

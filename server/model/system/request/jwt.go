@@ -11,11 +11,21 @@ type CustomClaims struct {
 	BufferTime int64
 	jwt.StandardClaims
 }
-
+type CustomClaimsForHls struct {
+	BaseClaimsForHls
+	BufferTime int64
+	jwt.StandardClaims
+}
 type BaseClaims struct {
 	UUID        uuid.UUID
 	ID          uint
 	Username    string
 	NickName    string
 	AuthorityId uint
+}
+type BaseClaimsForHls struct {
+	Sign      string
+	Domain    string
+	Expires   string
+	Timestamp string
 }

@@ -3,6 +3,8 @@ package cloud
 import (
 	"fmt"
 	"io/ioutil"
+	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
@@ -174,26 +176,27 @@ func (videoListService *VideoListService) GetVideoListInfoListFile(info cloudReq
 	// limit := info.PageSize
 	// offset := info.PageSize * (info.Page - 1)
 	// videoUrl  "/",子文件夹
-	// path := "D:\\Program Files (x86)\\aria2\\aria2-1.34.0\\download\\"
-	path := "/home/mp4/"
+	path := "D:/Program Files (x86)/aria2/aria2-1.34.0/download"
+	// path := "/home/mp4/"
 	if info.VideoUrl == "/" {
 		// 主目录
 		fmt.Println("主目录")
 	} else {
 		// 多层目录是否存在问题？
-		path = path + info.VideoUrl
+		// path = path + info.VideoUrl
+		path = filepath.Join(path, info.VideoUrl)
 	}
 	total = 1
 
 	files, err := ioutil.ReadDir(path)
 	// total = int64(len(files))
 	var task []cloud.FileDown
-	videoType := []string{"mp4", "3gp", "avi"}
+	videoType := []string{"mp4", "3gp", "avi", "flv"}
 	for _, f := range files {
 		// fmt.Println(f)
 		temp_task := cloud.FileDown{}
 		temp_task.FileName = f.Name()
-		temp_task.DownloadPath = path + f.Name()
+		temp_task.DownloadPath = filepath.Join(path, f.Name())
 		temp_task.FileSize = f.Size()
 		temp_task.FileType = "other"
 		for _, v := range videoType {
@@ -208,4 +211,61 @@ func (videoListService *VideoListService) GetVideoListInfoListFile(info cloudReq
 	}
 
 	return task, total, err
+}
+
+// move file
+func (videoListService *VideoListService) RenameFile(path string, fileName string) (err error) {
+	des_path := "D:/Program Files (x86)/aria2/aria2-1.34.0/trans/"
+	err = os.Rename(path, des_path+fileName)
+	// fmt.Println(des_path + fileName)
+	// fmt.Println("err:", err)
+	return err
+}
+
+// file 查询已转移
+func (videoListService *VideoListService) GetVideoListInfoListFileDone(info cloudReq.VideoListSearch) (list interface{}, total int64, err error) {
+	// limit := info.PageSize
+	// offset := info.PageSize * (info.Page - 1)
+	// videoUrl  "/",子文件夹
+	path := "D:/Program Files (x86)/aria2/aria2-1.34.0/trans/"
+	// path := "/home/mp4/"
+	if info.VideoUrl == "/" {
+		// 主目录
+		fmt.Println("主目录")
+	} else {
+		// 多层目录是否存在问题？
+		path = filepath.Join(path, info.VideoUrl)
+	}
+	total = 1
+
+	files, err := ioutil.ReadDir(path)
+	// total = int64(len(files))
+	var task []cloud.FileDown
+	videoType := []string{"mp4", "3gp", "avi", "flv"}
+	for _, f := range files {
+		// fmt.Println(f)
+		temp_task := cloud.FileDown{}
+		temp_task.FileName = f.Name()
+		temp_task.DownloadPath = filepath.Join(path, f.Name())
+		temp_task.FileSize = f.Size()
+		temp_task.FileType = "other"
+		for _, v := range videoType {
+			if strings.Contains(temp_task.FileName, v) {
+				temp_task.FileType = "video"
+			}
+		}
+		temp_task.IsDir = f.IsDir()
+		temp_task.ModTime = f.ModTime()
+		task = append(task, temp_task)
+		total += 1
+	}
+
+	return task, total, err
+}
+
+// trans video
+func (videoListService *VideoListService) TransVideo(videoInfo request.TransVideoReq) (err error) {
+	// des_path := "D:/Program Files (x86)/aria2/aria2-1.34.0/trans/"
+
+	return err
 }
