@@ -433,7 +433,8 @@ const enterDialog = async () => {
   videoLists.value.forEach(el=>{
      console.log(el)
   })
- 
+  //  发起更新操作
+  dialogFormVisible.value = false
 
     //  elFormRef.value?.validate( async (valid) => {
     //          if (!valid) return

@@ -369,17 +369,33 @@ func (videoListApi *VideoListApi) GetVideoListListFileDone(c *gin.Context) {
 }
 
 // file rename
-func (videoListApi *VideoListApi) TransVideo(c *gin.Context) {
-	var videoList request.TransVideoReq
+func (videoListApi *VideoListApi) ChangeFileName(c *gin.Context) {
+	var videoList request.FileReq
 	err := c.ShouldBindJSON(&videoList)
 	if err != nil {
 		response.FailWithMessage(err.Error(), c)
 		return
 	}
-	if err := videoListService.TransVideo(videoList); err != nil {
-		global.GVA_LOG.Error("移动文件失败!", zap.Error(err))
+	if err := videoListService.ChangeFileName(videoList.DownloadPath, videoList.FileName); err != nil {
+		global.GVA_LOG.Error("失败!", zap.Error(err))
 		response.FailWithMessage(err.Error(), c)
 	} else {
-		response.OkWithMessage("移动文件成功", c)
+		response.OkWithMessage("更名成功", c)
+	}
+}
+
+// file rename
+func (videoListApi *VideoListApi) DeleteFile(c *gin.Context) {
+	var videoList request.FileReq
+	err := c.ShouldBindJSON(&videoList)
+	if err != nil {
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+	if err := videoListService.DeleteFile(videoList.DownloadPath, videoList.FileName); err != nil {
+		global.GVA_LOG.Error("失败!", zap.Error(err))
+		response.FailWithMessage(err.Error(), c)
+	} else {
+		response.OkWithMessage("更名成功", c)
 	}
 }

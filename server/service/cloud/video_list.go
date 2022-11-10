@@ -173,8 +173,8 @@ func (videoListService *VideoListService) DownLoadTorrent(path string) (err erro
 
 // file 查询
 func (videoListService *VideoListService) GetVideoListInfoListFile(info cloudReq.VideoListSearch) (list interface{}, total int64, err error) {
-	// limit := info.PageSize
-	// offset := info.PageSize * (info.Page - 1)
+	limit := info.PageSize
+	offset := info.PageSize * (info.Page - 1)
 	// videoUrl  "/",子文件夹
 	path := "D:/Program Files (x86)/aria2/aria2-1.34.0/download"
 	// path := "/home/mp4/"
@@ -209,8 +209,18 @@ func (videoListService *VideoListService) GetVideoListInfoListFile(info cloudReq
 		task = append(task, temp_task)
 		total += 1
 	}
+	var top int
+	top = offset + limit
+	taskout := task
+	if len(task) > limit {
+		// 文件总数大于pagesize才需要分页
+		if len(task) < top {
+			top = len(task)
+		}
+		taskout = task[offset:top]
+	}
 
-	return task, total, err
+	return taskout, total, err
 }
 
 // move file
@@ -222,10 +232,10 @@ func (videoListService *VideoListService) RenameFile(path string, fileName strin
 	return err
 }
 
-// file 查询已转移
+// file 查询已移动
 func (videoListService *VideoListService) GetVideoListInfoListFileDone(info cloudReq.VideoListSearch) (list interface{}, total int64, err error) {
-	// limit := info.PageSize
-	// offset := info.PageSize * (info.Page - 1)
+	limit := info.PageSize
+	offset := info.PageSize * (info.Page - 1)
 	// videoUrl  "/",子文件夹
 	path := "D:/Program Files (x86)/aria2/aria2-1.34.0/trans/"
 	// path := "/home/mp4/"
@@ -259,13 +269,29 @@ func (videoListService *VideoListService) GetVideoListInfoListFileDone(info clou
 		task = append(task, temp_task)
 		total += 1
 	}
-
-	return task, total, err
+	var top int
+	top = offset + limit
+	taskout := task
+	if len(task) > limit {
+		// 文件总数大于pagesize才需要分页
+		if len(task) < top {
+			top = len(task)
+		}
+		taskout = task[offset:top]
+	}
+	return taskout, total, err
 }
 
-// trans video
-func (videoListService *VideoListService) TransVideo(videoInfo request.TransVideoReq) (err error) {
-	// des_path := "D:/Program Files (x86)/aria2/aria2-1.34.0/trans/"
+// change file name
+func (videoListService *VideoListService) ChangeFileName(path string, fileName string) (err error) {
+	base_path := filepath.Dir(path)
+	new_path := filepath.Join(base_path, fileName)
+	err = os.Rename(path, new_path)
+	return err
+}
 
+// delete file
+func (videoListService *VideoListService) DeleteFile(path string, fileName string) (err error) {
+	err = os.Remove(path)
 	return err
 }

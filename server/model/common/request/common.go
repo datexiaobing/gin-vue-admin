@@ -1,5 +1,7 @@
 package request
 
+import "github.com/flipped-aurora/gin-vue-admin/server/model/cloud"
+
 // PageInfo Paging common input parameter structure
 type PageInfo struct {
 	Page     int    `json:"page" form:"page"`         // 页码
@@ -19,7 +21,12 @@ func (r *GetById) Uint() uint {
 type IdsReq struct {
 	Ids []int `json:"ids" form:"ids"`
 }
-
+type IdsShareReq struct {
+	Ids     []int  `json:"ids" form:"ids"`
+	Domain  string `form:"domain" json:"domain"`
+	Expires string `json:"expires" form:"expires"`
+	Ip      string `jsonL:"ip" form:"ip"`
+}
 type GridsReq struct {
 	Grids []string `json:"grids" form:"grids"`
 }
@@ -34,6 +41,7 @@ type FileReq struct {
 type TransVideoReq struct {
 	DownloadPath string `json:"downloadPath" form:"downloadPath"`
 	FileName     string `jon:"fileName" form:"fileName"`
+	cloud.FileTrans
 }
 
 // GetAuthorityId Get role by id structure

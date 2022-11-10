@@ -4,11 +4,11 @@
             <el-row>
                 <el-button-group class="">
                 <el-space>
-                    <el-button icon="Share"> 分享</el-button>
+                    <el-button icon="Share" @click="getShare"> 分享</el-button>
                     <!-- <el-button icon="HelpFilled"> 转码</el-button> -->
                     <el-button icon="Delete"> 删除</el-button>
-                    <el-button icon="Pointer"> 更新分类</el-button>
-                    <el-button icon="Refresh" > 刷新</el-button>
+                    <el-button icon="Pointer" > 更新分类</el-button>
+                    <el-button icon="Refresh" @click="getTableData"> 刷新</el-button>
                 </el-space>
                 </el-button-group>
             </el-row>
@@ -41,10 +41,14 @@
 
         <el-table-column align="left" label="关联专辑数量"  width="120" >
           <template #default="scope">
-            <el-tag size="large" >{{scope.row.transTypeNum}}</el-tag>
+            <el-tag size="large" >{{scope.row.transTypeNum ||0}}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column align="left" label="分辨率" prop="transResolution" width="120" />
+        <el-table-column align="left" label="分辨率" prop="transResolution" width="120" >
+          <template #default="scope">
+            {{scope.row.transResolution ===3?'1080P':scope.row.transResolution ===2?'720P':'360P'}}
+          </template>
+        </el-table-column>
         <el-table-column align="left" label="片长" prop="transDuration" width="120" />
         <el-table-column align="left" label="字幕文件" prop="transSubtitle" width="180" />
         <el-table-column align="left" label="跳过片头" prop="transSeektimeHeard" width="120" >
@@ -116,7 +120,7 @@
             @size-change="handleSizeChange"
             />
         </div>
-
+      <!-- 跑马灯 -->
       <el-dialog v-model="dialogFormVisible"  title="跑马灯详情">
         <el-descriptions
           :column="1"
@@ -174,6 +178,51 @@
         </template>
       </el-dialog>
 
+      <!--分享  -->
+      <el-dialog v-model="dialogFormVisibleShare"  title="分享">
+        <el-form :model="formDataShare" label-position="left" label-width="90px">
+          <el-form-item label="视频源"  >
+            <el-input v-for="(k,index) in videoNames"
+            :key="index"
+            disabled
+            :placeholder="k.value" />
+          </el-form-item>
+
+          <el-form-item label="ip限制" prop="ip" >
+            <el-input v-model="formDataShare.ip"   />
+          </el-form-item>
+          <el-form-item label="有效期" prop="expires" >
+            <el-input v-model="formDataShare.expires"   />
+          </el-form-item>
+          <el-form-item label="来路域名" prop="domain" >
+            <el-input v-model="formDataShare.domain"   />
+          </el-form-item>
+          <el-form-item label="格式" >
+            <el-radio-group v-model="formatDetail"  >
+              <el-radio-button label="1">M3U8</el-radio-button>
+              <el-radio-button label="2">播放器</el-radio-button>
+              <el-radio-button label="3">缩略图</el-radio-button>
+            </el-radio-group>
+          </el-form-item>
+          <el-form-item label="内容">
+            <el-input
+              v-model="textarea"
+              :rows="10"
+              type="textarea"
+              
+            />
+          </el-form-item>
+        </el-form>
+
+        <template #footer>
+          <div class="dialog-footer">
+            <!-- <el-button type="primary" @click="closeDialogShare">关闭</el-button> -->
+            <el-button type="primary" @click="configShare">
+              <el-icon><Share /></el-icon>
+              获取</el-button>
+          </div>
+        </template>
+      </el-dialog>
 
     </div>
 </template>
@@ -185,7 +234,8 @@ import {
   deleteFileTransByIds,
   updateFileTrans,
   findFileTrans,
-  getFileTransList
+  getFileTransList,
+  getShareList
 } from '@/api/fileTrans'
 import {
   getVideoCategoryList
@@ -194,8 +244,14 @@ import {
 import { getDictFunc, formatDate, formatBoolean, filterDict } from '@/utils/format'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { ref, reactive } from 'vue'
+
+
+// const base_host="http://127.0.0.1"
+const base_host= ref(import.meta.env.VITE_BASE_PATH)
 // 弹窗控制标记
 const dialogFormVisible = ref(false)
+const dialogFormVisibleShare =ref(false)
+
 
 const videosType = ref([])
 const getVideosTypes = async()=>{
@@ -222,6 +278,52 @@ const seeDrawtext = (row)=>{
 }
 
 
+// 获取分享链接
+const getShare = ()=>{
+  dialogFormVisibleShare.value=true
+  videoNames.value=[]
+  formDataShare.value.ids=[]
+  multipleSelection.value.map(item => {
+      formDataShare.value.ids.push(item.ID)
+      videoNames.value.push({
+        key:item.ID,
+        value:item.transOutName
+      })
+    })
+ 
+}
+const configShare=async()=>{
+    textarea.value=[]
+    const d = await getShareList(formDataShare.value)
+    if(d.code===0){
+      d.data.list.forEach(el=>{
+          if(formatDetail.value ==='3'){
+            // 缩略图
+            textarea.value += base_host.value + el.picUrl+'\n'
+          }else{
+            // 视频链接
+            textarea.value +=base_host.value +el.M3Url+'\n'
+          }
+      })
+    }
+  
+ 
+}
+// 关闭分享链接
+const closeDialogShare=()=>{
+  dialogFormVisibleShare.value=false
+}
+
+// 分享链接的formData
+const formDataShare =ref({
+  ids:[],
+  ip:'0.0.0.0',
+  expires:'100',
+  domain:'*'
+})
+const videoNames =ref([])
+const formatDetail =ref('1')
+const textarea =ref('')
 // 自动化生成的字典（可能为空）以及字段
 const formData = ref({
         transInputName: '',
@@ -314,6 +416,7 @@ const multipleSelection = ref([])
 // 多选
 const handleSelectionChange = (val) => {
     multipleSelection.value = val
+    
 }
 
 // 删除行

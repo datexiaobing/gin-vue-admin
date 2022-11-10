@@ -10,6 +10,7 @@ import (
 
 	log "github.com/flipped-aurora/gin-vue-admin/server/go-admin-core/logger"
 	"github.com/flipped-aurora/gin-vue-admin/server/go-admin-core/sdk/config"
+	"github.com/flipped-aurora/gin-vue-admin/server/model/cloud"
 	"github.com/flipped-aurora/gin-vue-admin/server/tools/ffmpegBinding/transcoder"
 	"github.com/flipped-aurora/gin-vue-admin/server/tools/ffmpegBinding/transcoder/ffmpeg"
 )
@@ -86,6 +87,8 @@ type VideoCaptureConfig struct {
 func GetVideoWH(inputPath string) (int, int, error) {
 
 	outputPathfile := "temp/" + Md5toString(inputPath) + ".png"
+	fmt.Println("get videoWH:", outputPathfile)
+
 	err := VideoCapture(inputPath, outputPathfile, VideoCaptureConfig{StatrTime: "1.0"})
 	if err != nil {
 		log.Error("GetVideoWH GetVideoWH file:", outputPathfile, " error:", err)
@@ -166,7 +169,8 @@ func VideoCapture(inputPath string, outputPath string, videoCaptureConfig VideoC
 func Transcoding(tconfig TranscodingConfig,
 	wconfig WatermarkConfig,
 	cconfig VideoCaptureConfig,
-	write func(msg float64)) error {
+	file cloud.FileTrans,
+	write func(msg float64, file cloud.FileTrans)) error {
 
 	ffmpegConf := &ffmpeg.Config{
 		FfmpegBinPath:   FfmpegBinPath,
@@ -218,7 +222,7 @@ func Transcoding(tconfig TranscodingConfig,
 	options.Overwrite = &Overwrite
 
 	if wconfig.Switch {
-
+		// 文字跑马灯
 		if wconfig.Type == 1 {
 			Fontcolor := wconfig.Fontcolor
 			if Fontcolor == "" {
@@ -226,7 +230,7 @@ func Transcoding(tconfig TranscodingConfig,
 			}
 
 			Fontsize := wconfig.Fontsize
-			if Fontcolor == "" {
+			if Fontsize == 0 {
 				Fontsize = 36
 			}
 
@@ -248,14 +252,20 @@ func Transcoding(tconfig TranscodingConfig,
 				RollingStatr := strconv.Itoa(wconfig.RollingStatr) //滚动开始时间 秒
 				RollingSpace := strconv.Itoa(wconfig.RollingSpace) //间隔5秒循环
 				RollingSpeed := strconv.Itoa(wconfig.RollingSpeed) //滚动速度
-				xy = "y=" + YCoordinate + ":x=(w)+(" + RollingStatr + "*" + RollingSpeed + ") - mod((t*" + RollingSpeed + ")" + "\\" + ",tw+w+(" + RollingSpace + "*" + RollingSpeed + "))"
+				if file.TransDrawtextPosition == 1 {
+					// 上方
+					xy = "y=" + YCoordinate + ":x=(w)+(" + RollingStatr + "*" + RollingSpeed + ") - mod((t*" + RollingSpeed + ")" + "\\" + ",tw+w+(" + RollingSpace + "*" + RollingSpeed + "))"
+				} else {
+					// 下方
+					xy = "y=h-line_h" + ":x=(w)+(" + RollingStatr + "*" + RollingSpeed + ") - mod((t*" + RollingSpeed + ")" + "\\" + ",tw+w+(" + RollingSpace + "*" + RollingSpeed + "))"
+				}
 			}
-			rootpath := GetCurrentDirectory()
+			// rootpath := GetCurrentDirectory()
 			VideoFilter := "drawtext=" +
-				"text=" + wconfig.Text +
+				"text=" + "'" + wconfig.Text + "'" +
 				":fontcolor=" + Fontcolor + "" +
 				":fontsize=" + strconv.Itoa(Fontsize) + "" +
-				":fontfile=" + rootpath + "/config/static/fonts/klt.ttf" +
+				":fontfile=./simsun.ttc" +
 				":" + xy + "" +
 				""
 			options.VideoFilter = &VideoFilter
@@ -304,7 +314,7 @@ func Transcoding(tconfig TranscodingConfig,
 	}
 
 	width, height, err := GetVideoWH(tconfig.InputPath)
-	fmt.Println(width)
+	// fmt.Println(width)
 	// width, height, err := 100, 100, nil
 	if err != nil {
 		return err
@@ -354,8 +364,8 @@ func Transcoding(tconfig TranscodingConfig,
 		options.FrameRate = &fps
 	}
 
-	outputPathfile := outputPath + "/playlist." + outputType
-	fmt.Println(outputPathfile)
+	outputPathfile := outputPath + "/index." + outputType
+	// fmt.Println(outputPathfile)
 	if PathExists(outputPathfile) {
 		os.Remove(outputPathfile)
 	}
@@ -369,33 +379,35 @@ func Transcoding(tconfig TranscodingConfig,
 		Run(&transcoder)
 
 	progress := transcoder.Progress
-	fmt.Println(progress)
+	// fmt.Println(progress)
 	done := transcoder.Error
 
-	for msg := range progress {
-		Progress := msg.GetProgress()
-		if write != nil {
-			write(Progress)
+	go func() {
+		for msg := range progress {
+			Progress := msg.GetProgress()
+			if write != nil {
+				write(Progress, file)
+			}
 		}
-
-	}
+	}()
 
 	err = <-done
 	if err == nil {
 		if write != nil {
-			write(99.99)
+			write(99.99, file)
 		}
 	} else {
 		log.Error("Transcoding FFmpeg Run error:", err)
 		return err
 	}
 	if cconfig.Switch {
+		// 截图
 		err = VideoCapture(inputPath, outputPath+"/index.jpg", cconfig)
 	}
 
 	if err == nil {
 		if write != nil {
-			write(100.00)
+			write(100.00, file)
 		}
 	}
 

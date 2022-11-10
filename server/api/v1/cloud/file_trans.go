@@ -2,21 +2,20 @@ package cloud
 
 import (
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
-    "github.com/flipped-aurora/gin-vue-admin/server/model/cloud"
-    "github.com/flipped-aurora/gin-vue-admin/server/model/common/request"
-    cloudReq "github.com/flipped-aurora/gin-vue-admin/server/model/cloud/request"
-    "github.com/flipped-aurora/gin-vue-admin/server/model/common/response"
-    "github.com/flipped-aurora/gin-vue-admin/server/service"
-    "github.com/gin-gonic/gin"
-    "go.uber.org/zap"
-    "github.com/flipped-aurora/gin-vue-admin/server/utils"
+	"github.com/flipped-aurora/gin-vue-admin/server/model/cloud"
+	cloudReq "github.com/flipped-aurora/gin-vue-admin/server/model/cloud/request"
+	"github.com/flipped-aurora/gin-vue-admin/server/model/common/request"
+	"github.com/flipped-aurora/gin-vue-admin/server/model/common/response"
+	"github.com/flipped-aurora/gin-vue-admin/server/service"
+	"github.com/flipped-aurora/gin-vue-admin/server/utils"
+	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 )
 
 type FileTransApi struct {
 }
 
 var fileTransService = service.ServiceGroupApp.CloudServiceGroup.FileTransService
-
 
 // CreateFileTrans 创建FileTrans
 // @Tags FileTrans
@@ -28,15 +27,15 @@ var fileTransService = service.ServiceGroupApp.CloudServiceGroup.FileTransServic
 // @Success 200 {string} string "{"success":true,"data":{},"msg":"获取成功"}"
 // @Router /fileTrans/createFileTrans [post]
 func (fileTransApi *FileTransApi) CreateFileTrans(c *gin.Context) {
-	var fileTrans cloud.FileTrans
+	var fileTrans request.TransVideoReq
 	err := c.ShouldBindJSON(&fileTrans)
 	if err != nil {
 		response.FailWithMessage(err.Error(), c)
 		return
 	}
-    fileTrans.CreatedBy = utils.GetUserID(c)
+	fileTrans.FileTrans.CreatedBy = utils.GetUserID(c)
 	if err := fileTransService.CreateFileTrans(fileTrans); err != nil {
-        global.GVA_LOG.Error("创建失败!", zap.Error(err))
+		global.GVA_LOG.Error("创建失败!", zap.Error(err))
 		response.FailWithMessage("创建失败", c)
 	} else {
 		response.OkWithMessage("创建成功", c)
@@ -59,9 +58,9 @@ func (fileTransApi *FileTransApi) DeleteFileTrans(c *gin.Context) {
 		response.FailWithMessage(err.Error(), c)
 		return
 	}
-    fileTrans.DeletedBy = utils.GetUserID(c)
+	fileTrans.DeletedBy = utils.GetUserID(c)
 	if err := fileTransService.DeleteFileTrans(fileTrans); err != nil {
-        global.GVA_LOG.Error("删除失败!", zap.Error(err))
+		global.GVA_LOG.Error("删除失败!", zap.Error(err))
 		response.FailWithMessage("删除失败", c)
 	} else {
 		response.OkWithMessage("删除成功", c)
@@ -79,14 +78,14 @@ func (fileTransApi *FileTransApi) DeleteFileTrans(c *gin.Context) {
 // @Router /fileTrans/deleteFileTransByIds [delete]
 func (fileTransApi *FileTransApi) DeleteFileTransByIds(c *gin.Context) {
 	var IDS request.IdsReq
-    err := c.ShouldBindJSON(&IDS)
+	err := c.ShouldBindJSON(&IDS)
 	if err != nil {
 		response.FailWithMessage(err.Error(), c)
 		return
 	}
-    deletedBy := utils.GetUserID(c)
-	if err := fileTransService.DeleteFileTransByIds(IDS,deletedBy); err != nil {
-        global.GVA_LOG.Error("批量删除失败!", zap.Error(err))
+	deletedBy := utils.GetUserID(c)
+	if err := fileTransService.DeleteFileTransByIds(IDS, deletedBy); err != nil {
+		global.GVA_LOG.Error("批量删除失败!", zap.Error(err))
 		response.FailWithMessage("批量删除失败", c)
 	} else {
 		response.OkWithMessage("批量删除成功", c)
@@ -109,9 +108,9 @@ func (fileTransApi *FileTransApi) UpdateFileTrans(c *gin.Context) {
 		response.FailWithMessage(err.Error(), c)
 		return
 	}
-    fileTrans.UpdatedBy = utils.GetUserID(c)
+	fileTrans.UpdatedBy = utils.GetUserID(c)
 	if err := fileTransService.UpdateFileTrans(fileTrans); err != nil {
-        global.GVA_LOG.Error("更新失败!", zap.Error(err))
+		global.GVA_LOG.Error("更新失败!", zap.Error(err))
 		response.FailWithMessage("更新失败", c)
 	} else {
 		response.OkWithMessage("更新成功", c)
@@ -135,7 +134,7 @@ func (fileTransApi *FileTransApi) FindFileTrans(c *gin.Context) {
 		return
 	}
 	if refileTrans, err := fileTransService.GetFileTrans(fileTrans.ID); err != nil {
-        global.GVA_LOG.Error("查询失败!", zap.Error(err))
+		global.GVA_LOG.Error("查询失败!", zap.Error(err))
 		response.FailWithMessage("查询失败", c)
 	} else {
 		response.OkWithData(gin.H{"refileTrans": refileTrans}, c)
@@ -159,14 +158,32 @@ func (fileTransApi *FileTransApi) GetFileTransList(c *gin.Context) {
 		return
 	}
 	if list, total, err := fileTransService.GetFileTransInfoList(pageInfo); err != nil {
-	    global.GVA_LOG.Error("获取失败!", zap.Error(err))
-        response.FailWithMessage("获取失败", c)
-    } else {
-        response.OkWithDetailed(response.PageResult{
-            List:     list,
-            Total:    total,
-            Page:     pageInfo.Page,
-            PageSize: pageInfo.PageSize,
-        }, "获取成功", c)
-    }
+		global.GVA_LOG.Error("获取失败!", zap.Error(err))
+		response.FailWithMessage("获取失败", c)
+	} else {
+		response.OkWithDetailed(response.PageResult{
+			List:     list,
+			Total:    total,
+			Page:     pageInfo.Page,
+			PageSize: pageInfo.PageSize,
+		}, "获取成功", c)
+	}
+}
+
+// get sgare list
+func (fileTransApi *FileTransApi) GetShareList(c *gin.Context) {
+	var share request.IdsShareReq
+	err := c.ShouldBindJSON(&share)
+	if err != nil {
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+	if list, err := fileTransService.GetShareList(share); err != nil {
+		global.GVA_LOG.Error("获取失败!", zap.Error(err))
+		response.FailWithMessage("获取失败", c)
+	} else {
+		response.OkWithDetailed(response.PageResult{
+			List: list,
+		}, "获取成功", c)
+	}
 }

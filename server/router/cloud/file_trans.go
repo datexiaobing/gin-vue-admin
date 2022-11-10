@@ -1,7 +1,7 @@
 package cloud
 
 import (
-	"github.com/flipped-aurora/gin-vue-admin/server/api/v1"
+	v1 "github.com/flipped-aurora/gin-vue-admin/server/api/v1"
 	"github.com/flipped-aurora/gin-vue-admin/server/middleware"
 	"github.com/gin-gonic/gin"
 )
@@ -15,13 +15,14 @@ func (s *FileTransRouter) InitFileTransRouter(Router *gin.RouterGroup) {
 	fileTransRouterWithoutRecord := Router.Group("fileTrans")
 	var fileTransApi = v1.ApiGroupApp.CloudApiGroup.FileTransApi
 	{
-		fileTransRouter.POST("createFileTrans", fileTransApi.CreateFileTrans)   // 新建FileTrans
-		fileTransRouter.DELETE("deleteFileTrans", fileTransApi.DeleteFileTrans) // 删除FileTrans
+		fileTransRouter.POST("createFileTrans", fileTransApi.CreateFileTrans)             // 新建FileTrans
+		fileTransRouter.DELETE("deleteFileTrans", fileTransApi.DeleteFileTrans)           // 删除FileTrans
 		fileTransRouter.DELETE("deleteFileTransByIds", fileTransApi.DeleteFileTransByIds) // 批量删除FileTrans
-		fileTransRouter.PUT("updateFileTrans", fileTransApi.UpdateFileTrans)    // 更新FileTrans
+		fileTransRouter.PUT("updateFileTrans", fileTransApi.UpdateFileTrans)              // 更新FileTrans
+		fileTransRouter.POST("getShareList", fileTransApi.GetShareList)
 	}
 	{
-		fileTransRouterWithoutRecord.GET("findFileTrans", fileTransApi.FindFileTrans)        // 根据ID获取FileTrans
-		fileTransRouterWithoutRecord.GET("getFileTransList", fileTransApi.GetFileTransList)  // 获取FileTrans列表
+		fileTransRouterWithoutRecord.GET("findFileTrans", fileTransApi.FindFileTrans)       // 根据ID获取FileTrans
+		fileTransRouterWithoutRecord.GET("getFileTransList", fileTransApi.GetFileTransList) // 获取FileTrans列表
 	}
 }

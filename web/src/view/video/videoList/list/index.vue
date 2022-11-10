@@ -49,9 +49,11 @@
     <el-table-column align="left" label="操作" width="330">
         <template #default="scope">             
           <el-space class="b-contain">
-            <el-button type="danger"  icon="delete"  >删除</el-button>
-            <el-button type="success"  icon="EditPen"   >重命名</el-button>
-            <el-button v-if="scope.row.fileType === 'video'" type="primary"  icon="HelpFilled" >转码</el-button>
+            <el-button type="danger"  icon="delete" @click="deleteFiles(scope.row)" >删除</el-button>
+            <el-button type="success"  icon="EditPen"  @click="changeFileNames(scope.row)" >重命名</el-button>
+            <el-button v-if="scope.row.fileType === 'video'" 
+            type="primary"  icon="HelpFilled" 
+            @click="trans(scope.row)">转码</el-button>
           </el-space>
         </template>
     </el-table-column>
@@ -68,6 +70,124 @@
         />
     </div>
 
+    <el-dialog v-model="dialogFormVisible" :before-close="closeDialog" title="转码">
+      <el-form :model="formData" label-position="left" ref="elFormRef" :rules="rule" label-width="120px">
+        <el-form-item label="视频源:"  prop="fileName" >
+          <el-input v-model="formData.fileName" disabled />
+        </el-form-item>
+        <el-form-item label="视频重命名:"  prop="transOutName" >
+          <el-input v-model="formData.transOutName" :clearable="true"   />
+        </el-form-item>
+        <el-form-item label="视频分类:"  prop="transType" >
+          <!-- <el-input v-model.number="formData.transType" :clearable="true" placeholder="请输入" /> -->
+          <el-select v-model="formData.transType" placeholder="请选择">
+            <el-option
+            v-for="item in transTypeOption"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value">
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="分辨率:"  prop="transResolution" >
+          <!-- <el-input v-model="formData.transResolution" :clearable="true"  placeholder="请输入" /> -->
+          <el-select v-model="formData.transResolution" placeholder="请选择">
+            <el-option
+            v-for="item in transResolutionOption"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value">
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="跳过片头:"  prop="transSeektimeHeard" >
+          <!-- <el-input v-model.number="formData.transSeektimeHeard" :clearable="true" placeholder="请输入" /> -->
+          <el-slider v-model="formData.transSeektimeHeard" />
+        </el-form-item>
+        <el-form-item label="跳过片尾:"  prop="transSeektimeTail" >
+          <!-- <el-input v-model.number="formData.transSeektimeTail" :clearable="true" placeholder="请输入" /> -->
+          <el-slider v-model="formData.transSeektimeTail" />
+        </el-form-item>
+        <el-form-item label="跑马灯"   >
+          <el-switch v-model="paoma" size="large" @change="changePao"/>
+        </el-form-item>
+        <el-form-item label="跑马灯文字:"  prop="transDrawtextString" v-show="paoma">
+          <el-input v-model="formData.transDrawtextString" :clearable="true"  />
+        </el-form-item>
+        <el-form-item label="跑马灯位置:"  prop="transDrawtextPosition" v-show="paoma">
+          <!-- <el-input v-model="formData.transDrawtextPosition" :clearable="true"  /> -->
+          <el-radio-group v-model.number="formData.transDrawtextPosition" >
+            <el-radio-button label="1">上</el-radio-button>
+            <el-radio-button label="2">下</el-radio-button>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="跑马灯颜色:"  prop="transDrawtextColor"  v-show="paoma">
+          <!-- <el-input v-model="formData.transDrawtextColor" :clearable="true"  placeholder="请输入" /> -->
+          <el-radio-group v-model.number="formData.transDrawtextColor" >
+            
+            <el-radio-button label="aqua" />
+            <el-radio-button label="black" />
+            <el-radio-button label="blue" />
+            <el-radio-button label="fuchsia" />
+            <el-radio-button label="gray" />
+            <el-radio-button label="green" />           
+            <el-radio-button label="lime" />
+            <el-radio-button label="maroon" />
+            <el-radio-button label="navy" />
+            <el-radio-button label="olive" />
+            <el-radio-button label="purple" />
+            <el-radio-button label="red" />   
+            <el-radio-button label="silver" />
+            <el-radio-button label="teal" />
+            <el-radio-button label="white" />            
+
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="跑马灯大小:"  prop="transDrawtextFontsize" v-show="paoma">
+          <!-- <el-input v-model.number="formData.transDrawtextFontsize" :clearable="true" placeholder="请输入" /> -->
+          <el-slider v-model="formData.transDrawtextFontsize" />
+        </el-form-item>
+        <el-form-item label="跑马灯时长:"  prop="transDrawtextDuration" v-show="paoma" >
+          <!-- <el-input v-model="formData.transDrawtextDuration" :clearable="true"  placeholder="请输入" /> -->
+          <el-slider v-model="formData.transDrawtextDuration" />
+        </el-form-item>
+        <el-form-item label="跑马灯间隔:"  prop="transDrawtextInterval" v-show="paoma">
+          <el-slider v-model="formData.transDrawtextInterval" />
+          <!-- <el-input v-model="formData.transDrawtextInterval" :clearable="true"  placeholder="请输入" /> -->
+        </el-form-item>
+
+
+        <!-- <el-form-item label="字幕文件:"  prop="transSubtitle" >
+          <el-input v-model="formData.transSubtitle" :clearable="true"  placeholder="请输入" />
+        </el-form-item> -->
+        <!-- <el-form-item label="字幕开关:"  prop="transSubtitleSwitch" >
+          <el-input v-model.number="formData.transSubtitleSwitch" :clearable="true" placeholder="请输入" />
+        </el-form-item> -->
+
+      </el-form>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button size="small" @click="closeDialog">取 消</el-button>
+          <el-button size="small" type="primary" @click="transPost">确 定</el-button>
+        </div>
+      </template>
+    </el-dialog>
+
+    <el-dialog v-model="dialogFormVisibleFileName">
+      <el-form label-position="left" label-width="120">
+        <el-form-item label="新名称">
+          <el-input v-model="newFileNameData.newFileName"  />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button size="small" type="primary" @click="enterChangeFileName">确 定</el-button>
+        </div>
+      </template>
+    </el-dialog>
+  
+
+
    </div>
 </template>
 
@@ -82,15 +202,92 @@ import {
 } from '@/api/fileDownload'
 import {
   getVideoListListFileDone,
-  
+  changeFileName,
+  deleteFile
 } from '@/api/videoList'
+import {
+  createFileTrans,
+  deleteFileTrans,
+  deleteFileTransByIds,
+  updateFileTrans,
+  findFileTrans,
+  getFileTransList,
+  
+} from '@/api/fileTrans'
+import {
+  getVideoCategoryList
+} from '@/api/videoCategory'
 // 全量引入格式化工具 请按需保留
 import { getDictFunc, formatDate, formatBoolean, filterDict,bytesToSize } from '@/utils/format'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { ref, reactive } from 'vue'
 
-
+const transResolutionOption =ref([{label:'1080P',value:3},{label:'720P',value:2},{label:'360p',value:1}])
+const transTypeOption =ref([])
 const dir=ref("/")
+const paoma =ref(false)
+
+
+const deleteFiles =async (row)=>{
+  const d = await deleteFile({downloadPath:row.downloadPath})
+    if(d.code===0){
+     ElMessage({
+      type:"success",
+      message:"删除成功"
+     })
+     getTableData()
+  }
+}
+// 修改文件名称
+const newFileNameData=ref({
+  newFileName:'',
+  downloadPath:'',
+  fileName:'',
+})
+const dialogFormVisibleFileName=ref(false)
+const changeFileNames = (row)=>{
+  dialogFormVisibleFileName.value=true
+  
+  newFileNameData.value.newFileName=row.fileName
+  newFileNameData.value.downloadPath=row.downloadPath
+}
+const enterChangeFileName =async ()=>{
+  dialogFormVisibleFileName.value=false
+  const d = await changeFileName({downloadPath:newFileNameData.value.downloadPath,fileName:newFileNameData.value.newFileName})
+  if(d.code===0){
+     ElMessage({
+      type:"success",
+      message:"修改成功"
+     })
+     getTableData()
+  }
+   
+}
+
+const changePao=(val)=>{
+  paoma.value = val
+}
+
+// 获取transTypeOpton
+const getOptions=async ()=>{
+  const d = await getVideoCategoryList({page:1,pageSize:50})
+  if(d.code===0){
+    // console.log(d)
+    transTypeOption.value.push({
+        value:0,
+        label:'未分类'
+      })
+    d.data.list.forEach(el=> {
+      transTypeOption.value.push({
+        value:el.ID,
+        label:el.categoryName
+      })
+    })
+
+  }
+}
+
+getOptions()
 
 // 进入子目录
 const nextFolder = async(row)=>{
@@ -119,16 +316,54 @@ const getPrewFolder=async()=>{
 }
 
 
-// 自动化生成的字典（可能为空）以及字段
-const formData = ref({
-        fileDegree: 0,
-        fileIsDir: 0,
-        fileLastDir: '',
-        fileName: '',
-        filePath: '',
-        fileSize: 0,
-        fileType: '',
+// 传递跑马灯等数据
+const formData = ref(
+      {
+        transDrawtextSwitch:1, //是否开启跑马灯
+        transInputName: '',
+        transOutName: '',
+        transUuid: '',
+        transStatus: 0,
+        transType:0,
+        transTypeNum: 0,
+        transResolution: 3,
+        transDuration: '',
+        transSeektimeHeard: 0,
+        transSeektimeTail: 0,
+        transDrawtextColor: 'red',
+        transDrawtextPosition: 1,
+        transDrawtextDuration:5,
+        transDrawtextInterval: 3,
+        transDrawtextString: 'this is my paoma 我的跑马',
+        transDrawtextFontsize: 50,
+        transSubtitle: '',
+        transSubtitleSwitch: 0,
+        transProgressRate: 0,
+        transOssStatus: 0,
+        transOssError: '',
         })
+// *******trans video*****
+
+
+const trans =async (row)=>{
+  formData.value.downloadPath=row.downloadPath
+  formData.value.fileName =row.fileName
+  dialogFormVisible.value = true
+}
+
+const transPost =async()=>{
+   dialogFormVisible.value = false
+    const d = await createFileTrans(formData.value)
+    // console.log(d)
+    if(d.code===0){
+      ElMessage({
+        type:"success",
+        message:"创建转码成功"
+      })
+    }
+}
+
+
 
 // 验证规则
 const rule = reactive({
@@ -282,15 +517,15 @@ const openDialog = () => {
 // 关闭弹窗
 const closeDialog = () => {
     dialogFormVisible.value = false
-    formData.value = {
-        fileDegree: 0,
-        fileIsDir: 0,
-        fileLastDir: '',
-        fileName: '',
-        filePath: '',
-        fileSize: 0,
-        fileType: '',
-        }
+    // formData.value = {
+    //     fileDegree: 0,
+    //     fileIsDir: 0,
+    //     fileLastDir: '',
+    //     fileName: '',
+    //     filePath: '',
+    //     fileSize: 0,
+    //     fileType: '',
+    //     }
 }
 // 弹窗确定
 const enterDialog = async () => {
@@ -322,9 +557,12 @@ const enterDialog = async () => {
 
 <style scoped>
 
-.pro-cell{
-    padding-top: 5%;
-}
+
+
+/* .el-radio-button  >>> {
+  background-color: aqua;
+} */
+
 
 .speed-cell{
     display: flex;

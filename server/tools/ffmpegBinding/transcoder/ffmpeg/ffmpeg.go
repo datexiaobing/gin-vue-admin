@@ -89,7 +89,7 @@ func (t *Transcoder) Run(information *transcoder.Information) {
 
 	args = append(args, t.output...)
 
-	fmt.Println("t.output:", t.output)
+	// fmt.Println("t.output:", t.output)
 
 	fmt.Println("args:", args)
 

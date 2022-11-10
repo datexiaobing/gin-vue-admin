@@ -95,3 +95,13 @@ export const getFileTransList = (params) => {
     params
   })
 }
+
+// 获取分享链接，加密的链接
+export const getShareList = (data) => {
+  return service({
+    url: '/fileTrans/getShareList',
+    method: 'post',
+    data
+  })
+}
+

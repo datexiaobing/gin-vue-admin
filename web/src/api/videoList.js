@@ -171,3 +171,19 @@ export const getVideoListListFileDone = (params) => {
     params
   })
 }
+// 文件重名名
+export const changeFileName = (data) => {
+  return service({
+    url: '/videoList/changeFileName',
+    method: 'post',
+    data
+  })
+}
+// 删除文件
+export const deleteFile = (data) => {
+  return service({
+    url: '/videoList/deleteFile',
+    method: 'post',
+    data
+  })
+}

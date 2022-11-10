@@ -23,7 +23,10 @@ func (s *VideoListRouter) InitVideoListRouter(Router *gin.RouterGroup) {
 		videoListRouter.POST("getVideoListListPause", videoListApi.GetVideoListListPause)
 		videoListRouter.POST("getVideoListListRemove", videoListApi.GetVideoListListRemove)
 		videoListRouter.POST("getVideoListListUpload", videoListApi.GetVideoListListUpload)
-		videoListRouter.PUT("renameFile", videoListApi.RenameFiles) //移动文件
+		videoListRouter.PUT("renameFile", videoListApi.RenameFiles)         //移动文件
+		videoListRouter.POST("changeFileName", videoListApi.ChangeFileName) //移动文件
+		videoListRouter.POST("deleteFile", videoListApi.DeleteFile)         //移动文件
+
 	}
 	{
 		videoListRouterWithoutRecord.GET("findVideoList", videoListApi.FindVideoList)       // 根据ID获取VideoList

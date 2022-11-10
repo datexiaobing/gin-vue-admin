@@ -91,7 +91,27 @@ import {
 // 全量引入格式化工具 请按需保留
 import { getDictFunc, formatDate, formatBoolean, filterDict,bytesToSize } from '@/utils/format'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { ref, reactive } from 'vue'
+import { ref, reactive,onBeforeUnmount } from 'vue'
+import {start,close} from '@/utils/npgress'
+
+
+let timer =ref(null)
+// 设置查询定时器
+const setSearch =()=>{
+  timer = setInterval(() => {
+      //需要定时执行的代码
+      start()
+      getTableData()
+      close()
+  },2000)
+
+}
+setSearch()
+
+onBeforeUnmount(()=>{
+  clearInterval(timer)
+})
+
 
 // 多选数据
 const multipleSelection = ref([])

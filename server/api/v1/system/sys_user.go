@@ -1,8 +1,10 @@
 package system
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/common/request"
@@ -10,6 +12,7 @@ import (
 	"github.com/flipped-aurora/gin-vue-admin/server/model/system"
 	systemReq "github.com/flipped-aurora/gin-vue-admin/server/model/system/request"
 	systemRes "github.com/flipped-aurora/gin-vue-admin/server/model/system/response"
+	"github.com/flipped-aurora/gin-vue-admin/server/tools"
 	"github.com/flipped-aurora/gin-vue-admin/server/utils"
 
 	"github.com/gin-gonic/gin"
@@ -18,32 +21,61 @@ import (
 )
 
 func (b *BaseApi) Oauth(c *gin.Context) {
-	var l systemReq.OauthToken
-	err := c.ShouldBindQuery(&l)
+	// var l systemReq.OauthToken
+	// err := c.ShouldBindQuery(&l)
+	// if err != nil {
+	// 	c.JSON(http.StatusBadRequest, gin.H{"active": false})
+	// 	return
+	// }
+	// fmt.Println("l:", l)
+	// 使用path?timesmap?expires  进行aes+base64加密作为sign传输
+	// 接收方解密后，获得path 和请求的path 对比，不一致则退出；获取expires（秒）是否为-1，为-1则通过。
+	// 不为-1则计算 现在服务器时间-timesmap >expires 退出，否则返回视频数据
+	request_url := c.Request.Header.Get("X-Original-URI")
+	// request_url_ss, _ := url.QueryUnescape(request_url)
+	// fmt.Println("Request_url_ss:", request_url_ss)
+	sign, path := tools.GetSignPath(request_url)
+	// fmt.Println("path", path)
+	// fmt.Println("sign:", sign)
+	aes_dec, _ := tools.AesEcpt.AesBase64Decrypt(sign)
+	// a=[/hls/bfd82b6a-b6f3-4433-8fe6-d8a928dfea45/index.m3u8 1667390167 100]
+	a, err := tools.GetPathFromEnc(aes_dec)
+	// fmt.Println("a:", a)
 	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"active": false})
+		return
+	}
+	if a[0] != path {
+		fmt.Println("路径不符")
+		c.JSON(http.StatusBadRequest, gin.H{"active": false})
+		return
+	}
+
+	// 计算是否超时
+	timestmap := a[1]
+	expires := a[2]
+	// expires =-1 直接返回 有安全漏洞，不应该存在无限期的加密链接
+	// if expires == "-1" {
+	// 	fmt.Println("无限制？")
+	// 	c.JSON(http.StatusOK, gin.H{"active": true})
+	// 	return
+	// }
+	// 转换成iont64和现在的系统时间戳相减
+	int64_timestmap, _ := strconv.ParseInt(timestmap, 10, 64)
+	int64_expires, _ := strconv.ParseInt(expires, 10, 64)
+	now_timestmap := time.Now().Unix()
+
+	if (now_timestmap - int64_timestmap) > int64_expires {
+		// 超时
+		fmt.Println("time out")
 		c.JSON(http.StatusBadRequest, gin.H{"active": false})
 		return
 	}
 
 	// ********key和ts 文件都需要带上token*******
-	// sgin对应token
-	// if l.Sign == "" {
-	// 	c.JSON(http.StatusBadRequest, gin.H{"active": false})
-	// 	return
-	// }
-	// 验证token是否失效
-	// j := utils.NewJWT()
-	// oauthData, err := j.ParseTokenForHls(l.Sign)
-	// if err != nil {
-	// 	fmt.Println(err)
-	// 	c.JSON(http.StatusBadRequest, gin.H{"active": false})
-	// 	return
-	// }
-
 	// fmt.Println(oauthData.Domain)
 	// fmt.Println(oauthData.Expires)
-
-	// fmt.Println("X-Original-URI:", c.Request.Header.Get("X-Original-URI"))
+	fmt.Println("X-Original-URI:", c.Request.Header.Get("X-Original-URI"))
 	// fmt.Println("mydatas:", c.Request.Header.Get("Mydatas"))
 	// c.JSON(http.StatusBadRequest, gin.H{"active": false})
 	c.JSON(http.StatusOK, gin.H{"active": true})

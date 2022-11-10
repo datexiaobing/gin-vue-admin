@@ -8,7 +8,7 @@
                     <el-button icon="HelpFilled"> 转码</el-button> -->
                     <el-button icon="Delete"> 删除</el-button>
                     <!-- <el-button icon="Back"> 上一级</el-button> -->
-                    <el-button icon="Refresh" > 刷新</el-button>
+                    <el-button icon="Refresh" @click="getTableData"> 刷新</el-button>
                 </el-space>
                 </el-button-group>
             </el-row>
@@ -40,7 +40,11 @@
         </el-table-column>
 
         <el-table-column align="left" label="关联专辑数量" prop="transTypeNum" width="120" />
-        <el-table-column align="left" label="分辨率" prop="transResolution" width="120" />
+        <el-table-column align="left" label="分辨率" prop="transResolution" width="120" >
+          <template #default="scope">
+            {{scope.row.transResolution ===3?'1080P':scope.row.transResolution ===2?'720P':'360P'}}
+          </template>
+        </el-table-column>
         <el-table-column align="left" label="片长" prop="transDuration" width="120" />
         <el-table-column align="left" label="字幕文件" prop="transSubtitle" width="180" />
         <el-table-column align="left" label="跳过片头" prop="transSeektimeHeard" width="120" >
@@ -89,7 +93,8 @@
                 <el-progress 
                 :status="scope.row.transProgressRate === 100?'success':''"
                 :stroke-width="8" 
-                :percentage="scope.row.transProgressRate" />
+                :percentage="scope.row.transProgressRate.toFixed(2) || 0" />
+
             </div>
            </template>
         </el-table-column>
@@ -190,7 +195,8 @@ import {
 // 全量引入格式化工具 请按需保留
 import { getDictFunc, formatDate, formatBoolean, filterDict } from '@/utils/format'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { ref, reactive } from 'vue'
+import { ref, reactive,onBeforeUnmount } from 'vue'
+import {start,close} from '@/utils/npgress'
 
 // const videosType = ref([{value:1,label:'喜剧'}])
 const videosType = ref([])
@@ -444,6 +450,27 @@ const enterDialog = async () => {
               }
       })
 }
+
+let timer =ref(null)
+// 设置查询定时器
+const setSearch =()=>{
+  timer = setInterval(() => {
+      //需要定时执行的代码
+      start()
+      getTableData()
+      close()
+  },2000)
+
+}
+setSearch()
+
+onBeforeUnmount(()=>{
+  clearInterval(timer)
+})
+
+
+
+
 </script>
 
 <style>
