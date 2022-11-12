@@ -16,11 +16,11 @@ import (
 )
 
 // D:\myWork\ffmpeg\ffmpegmaster\bin
-var FfmpegBinPath = "D:\\myWork\\ffmpeg\\ffmpegmaster\\bin\\ffmpeg.exe"
-var FfprobeBinPath = "D:\\myWork\\ffmpeg\\ffmpegmaster\\bin\\ffprobe.exe"
+// var FfmpegBinPath = "D:\\myWork\\ffmpeg\\ffmpegmaster\\bin\\ffmpeg.exe"
+// var FfprobeBinPath = "D:\\myWork\\ffmpeg\\ffmpegmaster\\bin\\ffprobe.exe"
 
-// var FfmpegBinPath = "/usr/bin/ffmpeg"
-// var FfprobeBinPath = "/usr/bin/ffprobe"
+var FfmpegBinPath = "/usr/bin/ffmpeg"
+var FfprobeBinPath = "/usr/bin/ffprobe"
 
 /*
 *

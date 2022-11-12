@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
@@ -32,15 +33,17 @@ func (b *BaseApi) Oauth(c *gin.Context) {
 	// 接收方解密后，获得path 和请求的path 对比，不一致则退出；获取expires（秒）是否为-1，为-1则通过。
 	// 不为-1则计算 现在服务器时间-timesmap >expires 退出，否则返回视频数据
 	request_url := c.Request.Header.Get("X-Original-URI")
+	//修复+不显示的问题
+	request_url = strings.ReplaceAll(request_url, "+", "%2b")
 	// request_url_ss, _ := url.QueryUnescape(request_url)
-	// fmt.Println("Request_url_ss:", request_url_ss)
+	fmt.Println("Request_url:", request_url)
 	sign, path := tools.GetSignPath(request_url)
-	// fmt.Println("path", path)
-	// fmt.Println("sign:", sign)
+	fmt.Println("path", path)
+	fmt.Println("sign:", sign)
 	aes_dec, _ := tools.AesEcpt.AesBase64Decrypt(sign)
 	// a=[/hls/bfd82b6a-b6f3-4433-8fe6-d8a928dfea45/index.m3u8 1667390167 100]
 	a, err := tools.GetPathFromEnc(aes_dec)
-	// fmt.Println("a:", a)
+	fmt.Println("a:", a)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"active": false})
 		return

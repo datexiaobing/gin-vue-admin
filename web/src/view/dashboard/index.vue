@@ -30,35 +30,47 @@
 
 <script setup>
 import {ref} from 'vue'
+import {
+getVideosStatus
+} from '@/api/videoList'
 
-
-let box_data = ref([{
-  count:0,
+const getData =async ()=>{
+  const d = await getVideosStatus()
+  // console.log(d)
+  let dd=d.data.list
+  box_data.value=[{
+  count:dd.activiteNum,
   color:'background: rgb(25, 190, 107); ',
   content:'正在转码'
 },{
-  count:0,
+  count:dd.waitingNum,
   color:'background: rgb(255, 153, 0); ',
   content:'转码等待'
 },{
-  count:93,
+  count:dd.doneNum,
   color:'background: rgb(237, 64, 20); ',
   content:'已完成/已停止'
 },
 {
-  count:0,
+  count:dd.numActive,
   color:'background: rgb(25, 190, 107); ',
   content:'正在下载'
 },{
-  count:2,
+  count:dd.numWaiting,
   color:'background: rgb(255, 153, 0); ',
   content:'下载等待'
 },{
-  count:11,
+  count:dd.numStopped,
   color:'background: rgb(237, 64, 20); ',
   content:'已完成/已停止'
 },
-])
+]
+ 
+}
+
+getData()
+
+let box_data = ref(null)
 
 </script>
 

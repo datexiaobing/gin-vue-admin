@@ -49,8 +49,8 @@
         <el-table-column align="left" label="操作" width="330">
             <template #default="scope">             
               <el-space class="b-contain">
-                <el-button type="danger"  icon="delete"  >删除</el-button>
-                <el-button type="success"  icon="EditPen"   >重命名</el-button>
+                <el-button type="danger"  icon="delete"  @click="deleteFiles(scope.row)">删除</el-button>
+                <el-button type="success"  icon="EditPen"   @click="changeFileNames(scope.row)">重命名</el-button>
                 <el-button v-if="scope.row.fileType === 'video'" type="primary"  icon="CopyDocument" @click="moveVideo(scope.row)" >移到视频源</el-button>
               </el-space>
             </template>
@@ -67,6 +67,21 @@
             @size-change="handleSizeChange"
             />
         </div>
+
+    <el-dialog v-model="dialogFormVisibleFileName">
+      <el-form label-position="left" label-width="120">
+        <el-form-item label="新名称">
+          <el-input v-model="newFileNameData.newFileName"  />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button size="small" type="primary" @click="enterChangeFileName">确 定</el-button>
+        </div>
+      </template>
+    </el-dialog>
+
+
   </div>
     
 </template>
@@ -82,7 +97,9 @@ import {
 } from '@/api/fileDownload'
 import {
   getVideoListListFile,
-  renameFile
+  renameFile,
+  changeFileName,
+  deleteFile
 } from '@/api/videoList'
 
 // 全量引入格式化工具 请按需保留
@@ -92,6 +109,42 @@ import { ref, reactive } from 'vue'
 
 
 const dir=ref("/")
+
+const deleteFiles =async (row)=>{
+  const d = await deleteFile({downloadPath:row.downloadPath})
+    if(d.code===0){
+     ElMessage({
+      type:"success",
+      message:"删除成功"
+     })
+     getTableData()
+  }
+}
+// 修改文件名称
+const newFileNameData=ref({
+  newFileName:'',
+  downloadPath:'',
+  fileName:'',
+})
+const dialogFormVisibleFileName=ref(false)
+const changeFileNames = (row)=>{
+  dialogFormVisibleFileName.value=true
+  newFileNameData.value.newFileName=row.fileName
+  newFileNameData.value.downloadPath=row.downloadPath
+}
+const enterChangeFileName =async ()=>{
+  dialogFormVisibleFileName.value=false
+  const d = await changeFileName({downloadPath:newFileNameData.value.downloadPath,fileName:newFileNameData.value.newFileName})
+  if(d.code===0){
+     ElMessage({
+      type:"success",
+      message:"修改成功"
+     })
+     getTableData()
+  }
+   
+}
+
 
 // 进入子目录
 const nextFolder = async(row)=>{

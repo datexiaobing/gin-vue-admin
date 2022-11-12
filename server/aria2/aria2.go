@@ -191,6 +191,26 @@ func (a Aria2Client) QueryDownloadingTask() (tasks []*TaskStatusData, err error)
 	}
 	return resp.Result, nil
 }
+func (a Aria2Client) GetGlobalStatTask() (tasks *GlobalStatTaskData, err error) {
+	request, _, err := NewRequestWithToken(a.Token).GetGlobalStat().Create()
+	if err != nil {
+		return nil, err
+	}
+	requestResult, err := a.SendRequest(request)
+	if err != nil {
+		return nil, err
+	}
+
+	resp := &GlobalStatTaskListResponse{}
+	if err := json.Unmarshal(requestResult, &resp); err != nil {
+		return nil, err
+	}
+
+	if resp.Error != nil {
+		return nil, fmt.Errorf("code: %d message: %s", resp.Error.Code, resp.Error.Message)
+	}
+	return resp.Result, nil
+}
 
 func (a Aria2Client) QueryNotDownloadingTask() (tasks []*TaskStatusData, err error) {
 	offset := 0

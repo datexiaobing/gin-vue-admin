@@ -26,7 +26,7 @@
         @selection-change="handleSelectionChange"
         >
         <el-table-column type="selection" width="55" />
-        <el-table-column align="left" label="视频源文件" prop="transInputName" width="200" fixed />
+        <el-table-column align="left" label="视频源文件" prop="transInputName" min-width="300" fixed />
         <el-table-column align="left" label="uuid" prop="transUuid" min-width="300"/>
         <el-table-column align="left" label="视频名称" prop="transOutName" min-width="200" />
         

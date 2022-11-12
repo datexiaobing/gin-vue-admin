@@ -136,6 +136,13 @@ type GetVersionResponse struct {
 	Version         string   `json:"version"`
 	EnabledFeatures []string `json:"enabledFeatures"`
 }
+type GlobalStatTaskData struct {
+	DownloadSpeed string `json:"downloadSpeed"`
+	NumActive     string `json:"numActive"`
+	NumStopped    string `json:"numStopped"`
+	NumWaiting    string `json:"numWaiting"`
+	UploadSpeed   string `json:"uploadSpeed"`
+}
 
 // TaskStatusData TellStatus 返回值结构
 type TaskStatusData struct {
@@ -207,6 +214,10 @@ type TellTaskListResponse struct {
 type QueryNotDownloadingTaskResponse struct {
 	BasicModel
 	Result [][][]*TaskStatusData `json:"result"`
+}
+type GlobalStatTaskListResponse struct {
+	BasicModel
+	Result *GlobalStatTaskData `json:"result"`
 }
 
 // Response aria2 通常响应

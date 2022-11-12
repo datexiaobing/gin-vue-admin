@@ -4,8 +4,16 @@ package cloud
 import (
 	"time"
 
+	aria2go "github.com/flipped-aurora/gin-vue-admin/server/aria2"
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
 )
+
+type VideoGlobalStat struct {
+	aria2go.GlobalStatTaskData
+	WaitingNum  int `json:"waitingNum"`
+	ActiviteNum int `json:"activiteNum"`
+	DoneNum     int `json:"doneNum"`
+}
 
 // VideoList 结构体
 type VideoList struct {

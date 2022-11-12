@@ -7,6 +7,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strconv"
 	"strings"
 	"time"
@@ -87,6 +88,8 @@ func (fileTransService *FileTransService) TransVideo(fileTrans request.TransVide
 	if err != nil {
 		fmt.Println(err, "转换视频时候故障，退出")
 	}
+	// 转换完成，删除原视频
+	err = os.Remove(fileTrans.DownloadPath)
 	return err
 }
 
@@ -94,7 +97,12 @@ func (fileTransService *FileTransService) CreateFileTrans(fileTrans request.Tran
 
 	var file cloud.FileTrans
 	// linux 环境需要改这里
-	baseOutPath := "D:\\myWork\\korea\\cloud\\translate\\transcoding-server\\temp\\testvideo\\out\\a"
+	baseOutPath := "/home/cloud/m3u8/nokey/"
+	sysType := runtime.GOOS
+	if sysType == "windows" {
+		fmt.Println("Windows system")
+		baseOutPath = "D:\\myWork\\korea\\cloud\\translate\\transcoding-server\\temp\\testvideo\\out\\a\\"
+	}
 	// 获取视频时长，秒
 	// ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 -i "D:\\Program Files (x86)\\aria2\\aria2-1.34.0\\trans\\1.mp4"
 	mediaUrl := fileTrans.DownloadPath
@@ -227,7 +235,7 @@ func (fileTransService *FileTransService) GetShareList(share request.IdsShareReq
 		uuid := v.TransUuid
 		fileShare.FileName = v.TransOutName
 		// path_m3u8 := "/hls/" + uuid + "/index.m3u8" //这个地址保持不变
-		path_1080 := "/hls/" + uuid + "/1080p" //动态m3u8
+		path_1080 := "/hls/" + uuid + "/1080p.m3u8" //动态m3u8
 		path_image := "/hls/" + uuid + "/index.jpg"
 		// fileShare.M3Url = path_m3u8 + fileTransService.GenerateUrlTail(path_m3u8, t, share)
 
@@ -264,9 +272,14 @@ func (fileTransService *FileTransService) GenerateUrlTail(
 func (fileTransService *FileTransService) GenerateNewM3u8(uuid string,
 	t int64, share request.IdsShareReq) {
 	// base_path 系统存放m3u8的目录
-	base_path := "D:\\myWork\\korea\\cloud\\translate\\transcoding-server\\temp\\testvideo\\out\\a\\"
+	base_path := "/home/cloud/m3u8/nokey/"
+	sysType := runtime.GOOS
+	if sysType == "windows" {
+		fmt.Println("Windows system")
+		base_path = "D:\\myWork\\korea\\cloud\\translate\\transcoding-server\\temp\\testvideo\\out\\a\\"
+	}
 	path_index_m3u8 := filepath.Join(base_path, uuid, "index.m3u8")
-	path_1080_m3u8 := filepath.Join(base_path, uuid, "1080p")
+	path_1080_m3u8 := filepath.Join(base_path, uuid, "1080p.m3u8")
 
 	// 读取index.m3u8 同时生成动态加密tail
 	fileHanle, err := os.OpenFile(path_index_m3u8, os.O_RDONLY, 0666)

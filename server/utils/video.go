@@ -24,6 +24,12 @@ func DownloadByUrl(url string) (gid string) {
 	return gid
 }
 
+func GetGlobalStatTask() (tasks *aria2go.GlobalStatTaskData, err error) {
+	client := aria2go.NewAria2Client("8888")
+	allTask, err := client.GetGlobalStatTask()
+	return allTask, err
+}
+
 // active video
 func QueryActiveVideos() (task []*aria2go.TaskStatusData, err error) {
 	client := aria2go.NewAria2Client("8888")

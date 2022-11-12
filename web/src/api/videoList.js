@@ -187,3 +187,13 @@ export const deleteFile = (data) => {
     data
   })
 }
+
+
+// videos staus
+export const getVideosStatus = (params) => {
+  return service({
+    url: '/videoList/getVideosStatus',
+    method: 'get',
+    params
+  })
+}

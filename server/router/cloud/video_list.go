@@ -32,6 +32,7 @@ func (s *VideoListRouter) InitVideoListRouter(Router *gin.RouterGroup) {
 		videoListRouterWithoutRecord.GET("findVideoList", videoListApi.FindVideoList)       // 根据ID获取VideoList
 		videoListRouterWithoutRecord.GET("getVideoListList", videoListApi.GetVideoListList) // 获取VideoList列表
 		videoListRouterWithoutRecord.GET("getVideoListListActive", videoListApi.GetVideoListListActive)
+		videoListRouterWithoutRecord.GET("getVideosStatus", videoListApi.GetVideosStatus) //获取首页下载文件个数
 		videoListRouterWithoutRecord.GET("getVideoListListWaiting", videoListApi.GetVideoListListWaiting)
 		videoListRouterWithoutRecord.GET("getVideoListListStop", videoListApi.GetVideoListListStop)
 		videoListRouterWithoutRecord.GET("getVideoListListFile", videoListApi.GetVideoListListFile)

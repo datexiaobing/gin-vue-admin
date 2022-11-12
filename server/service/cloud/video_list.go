@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
@@ -114,6 +115,27 @@ func (videoListService *VideoListService) GetVideoListInfoListActive(info cloudR
 	return task, total, err
 }
 
+// getVideosStatus  所有状态的数目
+func (videoListService *VideoListService) GetVideosStatus(info cloudReq.VideoListSearch) (list interface{}, total int64, err error) {
+	// 下载状态查询
+	total = 1
+	task, _ := utils.GetGlobalStatTask()
+	var videoGlobalStat cloud.VideoGlobalStat
+	videoGlobalStat.GlobalStatTaskData = *task
+	// 转换状态查询
+	path := "/home/cloud/mp4"
+	files, _ := ioutil.ReadDir(path)
+	videoGlobalStat.WaitingNum = len(files) //等于刚移动过来的视频个数
+	var fileTrans []cloud.FileTrans
+	_ = global.GVA_DB.Model(cloud.FileTrans{}).Where("trans_status = ?", 1).Find(&fileTrans).Error
+	videoGlobalStat.ActiviteNum = len(fileTrans)
+	// 已完成的视频数量=trans_file表中所有的所有视频数量
+	var fileTrans1 []cloud.FileTrans
+	err = global.GVA_DB.Model(cloud.FileTrans{}).Where("trans_status = ?", 2).Find(&fileTrans1).Error
+	videoGlobalStat.DoneNum = len(fileTrans1)
+	return videoGlobalStat, total, err
+}
+
 // waiting 查询
 func (videoListService *VideoListService) GetVideoListInfoListWaiting(info cloudReq.VideoListSearch) (list interface{}, total int64, err error) {
 	limit := info.PageSize
@@ -175,9 +197,14 @@ func (videoListService *VideoListService) DownLoadTorrent(path string) (err erro
 func (videoListService *VideoListService) GetVideoListInfoListFile(info cloudReq.VideoListSearch) (list interface{}, total int64, err error) {
 	limit := info.PageSize
 	offset := info.PageSize * (info.Page - 1)
-	// videoUrl  "/",子文件夹
-	path := "D:/Program Files (x86)/aria2/aria2-1.34.0/download"
-	// path := "/home/mp4/"
+	// 下载存放的文件夹
+	path := "/home/cloud/aria2/"
+	sysType := runtime.GOOS
+	if sysType == "windows" {
+		fmt.Println("Windows system")
+		path = "D:/Program Files (x86)/aria2/aria2-1.34.0/download"
+	}
+
 	if info.VideoUrl == "/" {
 		// 主目录
 		fmt.Println("主目录")
@@ -191,7 +218,7 @@ func (videoListService *VideoListService) GetVideoListInfoListFile(info cloudReq
 	files, err := ioutil.ReadDir(path)
 	// total = int64(len(files))
 	var task []cloud.FileDown
-	videoType := []string{"mp4", "3gp", "avi", "flv"}
+	videoType := []string{"mp4", "3gp", "avi", "flv", "mkv"}
 	for _, f := range files {
 		// fmt.Println(f)
 		temp_task := cloud.FileDown{}
@@ -225,10 +252,16 @@ func (videoListService *VideoListService) GetVideoListInfoListFile(info cloudReq
 
 // move file
 func (videoListService *VideoListService) RenameFile(path string, fileName string) (err error) {
-	des_path := "D:/Program Files (x86)/aria2/aria2-1.34.0/trans/"
+	// 移动文件到全部是视频的目录下
+	sysType := runtime.GOOS
+	des_path := "/home/cloud/mp4/"
+	if sysType == "windows" {
+		fmt.Println("Windows system")
+		des_path = "D:/Program Files (x86)/aria2/aria2-1.34.0/trans/"
+	}
+
 	err = os.Rename(path, des_path+fileName)
-	// fmt.Println(des_path + fileName)
-	// fmt.Println("err:", err)
+
 	return err
 }
 
@@ -236,8 +269,14 @@ func (videoListService *VideoListService) RenameFile(path string, fileName strin
 func (videoListService *VideoListService) GetVideoListInfoListFileDone(info cloudReq.VideoListSearch) (list interface{}, total int64, err error) {
 	limit := info.PageSize
 	offset := info.PageSize * (info.Page - 1)
+
+	sysType := runtime.GOOS
+	path := "/home/cloud/mp4/"
+	if sysType == "windows" {
+		fmt.Println("Windows system")
+		path = "D:/Program Files (x86)/aria2/aria2-1.34.0/trans/"
+	}
 	// videoUrl  "/",子文件夹
-	path := "D:/Program Files (x86)/aria2/aria2-1.34.0/trans/"
 	// path := "/home/mp4/"
 	if info.VideoUrl == "/" {
 		// 主目录

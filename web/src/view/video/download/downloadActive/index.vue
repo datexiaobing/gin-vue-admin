@@ -87,7 +87,7 @@
           </el-tab-pane>
           <el-tab-pane label="种子文件" name="second">
             <el-upload
-            :action="`${path}/videoList/getVideoListListUpload`"
+            :action="`${path}/api/videoList/getVideoListListUpload`"
             :headers="{ 'x-token': userStore.token }"
             :show-file-list="false"
             class="upload-btn"
@@ -137,7 +137,7 @@ const setSearch =()=>{
       start()
       getTableData()
       close()
-  },2000)
+  },5000)
 
 }
 setSearch()
@@ -148,7 +148,7 @@ onBeforeUnmount(()=>{
 
 
 const userStore = useUserStore()
-const path = ref(import.meta.env.VITE_BASE_API)
+const path = ref(import.meta.env.VITE_BASE_PATH)
 const createDown =ref(false)
 const activeName = ref('first')
 const textarea = ref('')
@@ -287,7 +287,7 @@ const getTableData = async() => {
       e.fileLength = e.files[0].length 
       e.completedLength =e.files[0].completedLength || 0
       let temp = path.replace(dir,"").split('/')
-      console.log(temp,e.fileLength)
+      // console.log(temp,e.fileLength)
       e.fileName=path
 
     })

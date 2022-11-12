@@ -1,7 +1,9 @@
 package cloud
 
 import (
+	"fmt"
 	"net/http"
+	"runtime"
 	"strconv"
 	"time"
 
@@ -195,6 +197,27 @@ func (videoListApi *VideoListApi) GetVideoListListActive(c *gin.Context) {
 	}
 }
 
+// getVideosStatus
+func (videoListApi *VideoListApi) GetVideosStatus(c *gin.Context) {
+	var pageInfo cloudReq.VideoListSearch
+	err := c.ShouldBindQuery(&pageInfo)
+	if err != nil {
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+	if list, total, err := videoListService.GetVideosStatus(pageInfo); err != nil {
+		global.GVA_LOG.Error("获取失败!", zap.Error(err))
+		response.FailWithMessage("获取失败", c)
+	} else {
+		response.OkWithDetailed(response.PageResult{
+			List:     list,
+			Total:    total,
+			Page:     pageInfo.Page,
+			PageSize: pageInfo.PageSize,
+		}, "获取成功", c)
+	}
+}
+
 // waiting search
 func (videoListApi *VideoListApi) GetVideoListListWaiting(c *gin.Context) {
 	var pageInfo cloudReq.VideoListSearch
@@ -297,8 +320,12 @@ func (videoListApi *VideoListApi) GetVideoListListUpload(c *gin.Context) {
 	time_unix_str := strconv.FormatInt(unix_int, 10) // 讲int类型转为string类型，方便拼接，使用sprinf也可以
 	// 防止重名文件
 	// base_path := "D:\\myWork\\korea\\cloud\\gin-vue-admin\\server\\upload\\"
-	base_path := "/home/korea/cloud/upload/"
-
+	base_path := "/home/cloud/upload/"
+	sysType := runtime.GOOS
+	if sysType == "windows" {
+		fmt.Println("Windows system")
+		base_path = "D:\\myWork\\korea\\cloud\\gin-vue-admin\\server\\upload\\"
+	}
 	file_path := base_path + time_unix_str + file.Filename // 设置保存文件的路径，不要忘了后面的文件名
 
 	c.SaveUploadedFile(file, file_path) // 保存文件
