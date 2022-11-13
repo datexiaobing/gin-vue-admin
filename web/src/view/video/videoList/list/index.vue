@@ -215,6 +215,14 @@ import {
   
 } from '@/api/fileTrans'
 import {
+  createCloudConfig,
+  deleteCloudConfig,
+  deleteCloudConfigByIds,
+  updateCloudConfig,
+  findCloudConfig,
+  getCloudConfigList
+} from '@/api/cloudConfig'
+import {
   getVideoCategoryList
 } from '@/api/videoCategory'
 // 全量引入格式化工具 请按需保留
@@ -287,6 +295,26 @@ const getOptions=async ()=>{
 }
 
 getOptions()
+
+// 获取系统跑马灯设置
+const getConfig =async ()=>{
+  const d= await findCloudConfig({ID:1})
+  
+  if(d.code===0){
+    let dd =d.data.recloudConfig
+    formData.value.transDrawtextColor=dd.transDrawtextColor
+    formData.value.transDrawtextDuration =dd.transDrawtextDuration
+    formData.value.transDrawtextFontsize =dd.transDrawtextFontsize
+    formData.value.transDrawtextInterval =dd.transDrawtextInterval
+    formData.value.transDrawtextPosition=dd.transDrawtextPosition
+    formData.value.transDrawtextString=dd.transDrawtextString
+    formData.value.transResolution=dd.transResolution
+    formData.value.transSeektimeHeard=dd.transSeektimeHeard
+    formData.value.transSeektimeTail=dd.transSeektimeTail
+  }
+}
+
+getConfig()
 
 // 进入子目录
 const nextFolder = async(row)=>{

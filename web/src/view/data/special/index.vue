@@ -27,7 +27,7 @@
     </div>
     <div class="gva-table-box">
         <div class="gva-btn-list">
-            <el-button size="small" type="primary" icon="plus" @click="openDialog">新增</el-button>
+            <el-button size="small" type="primary" icon="plus" @click="open1">新增</el-button>
             <el-popover v-model:visible="deleteVisible" placement="top" width="160">
             <p>确定要删除吗？</p>
             <div style="text-align: right; margin-top: 8px;">
@@ -85,7 +85,7 @@
             />
         </div>
     </div>
-    <el-dialog v-model="dialogFormVisible" :before-close="closeDialog" title="新建/更新">
+    <el-dialog v-model="dialogFormVisible" :before-close="closeDialog" title="更新">
       <el-form :model="formData" label-position="left" ref="elFormRef" :rules="rule" label-width="120px">
         <el-form-item label="专辑名称:"  prop="specialName" >
           <el-input v-model="formData.specialName" :clearable="true"  placeholder="请输入" />
@@ -114,6 +114,7 @@
           :options="options" 
           :props="props"
           v-model="videoLists"
+          @remove-tag="removeTag"
           >
           </el-cascader>
         </el-form-item>
@@ -135,7 +136,7 @@
           
           <el-table-column align="center" label="操作" width="180">
             <template #header>
-              <el-input v-model="searchName"  placeholder="Type to search" >
+              <el-input v-model="searchName"   >
                 <template #append>
                   <el-button icon="Search" @click="getTableDataSearch"/>
                 </template>
@@ -155,6 +156,32 @@
         </div>
       </template>
     </el-dialog>
+
+    <el-dialog v-model="dialogFormVisible1" :before-close="closeDialog" title="新建">
+      <el-form :model="formData1" label-position="left"  :rules="rule" label-width="120px">
+        <el-form-item label="专辑名称:"  prop="specialName" >
+          <el-input v-model="formData1.specialName" :clearable="true"  placeholder="请输入" />
+        </el-form-item>
+        <el-form-item label="分类:" >
+          <!-- <el-input v-model.number="formData.specialCategory" :clearable="true" placeholder="请输入" /> -->
+              <el-select v-model="formData1.specialCategory" style="width:100%">
+                  <el-option
+                  v-for="(v,i) in categorys"
+                  :key="i"
+                  :label="v.label"
+                  :value="v.value">
+                  </el-option>
+              </el-select>
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button size="small" @click="closeDialog1">取 消</el-button>
+          <el-button size="small" type="primary" @click="enterDialog1">确 定</el-button>
+        </div>
+      </template>
+    </el-dialog>
+
   </div>
 </template>
 
@@ -173,7 +200,14 @@ import {
   findVideoSpecial,
   getVideoSpecialList
 } from '@/api/videoSpecial'
-
+import {
+  createVideoSpecialFileTrans,
+  deleteVideoSpecialFileTrans,
+  deleteVideoSpecialFileTransByIds,
+  updateVideoSpecialFileTrans,
+  findVideoSpecialFileTrans,
+  getVideoSpecialFileTransList
+} from '@/api/videoSpecialFileTrans'
 import {
   getVideoCategoryList
 } from '@/api/videoCategory'
@@ -189,18 +223,34 @@ import {
 
 // 全量引入格式化工具 请按需保留
 import { getDictFunc, formatDate, formatBoolean, filterDict } from '@/utils/format'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ElMessage, ElMessageBox, ElNotification, } from 'element-plus'
 import { ref, reactive } from 'vue'
 
-const searchName =ref('转换')
-
+const searchName =ref('')
+const dialogFormVisible1 =ref(false)
 const props = ref({ multiple: true })
-const options = ref([])
-
-const videoLists =ref([])
-
-
+const options = ref([]) //展示多级选择的视频
+const videoLists =ref([]) //存放视频ID
 const categorys =ref([])
+
+// 新建专辑
+const closeDialog1=()=>{
+  dialogFormVisible1.value=false
+}
+const open1 =()=>{
+  dialogFormVisible1.value=true
+}
+const enterDialog1 = async()=>{
+  const d = await createVideoSpecial(formData1.value)
+  if(d.code===0){
+    ElMessage({
+      type:'success',
+      message:'创建专辑成功！'
+    })
+    dialogFormVisible1.value=false
+    getTableData()
+  }
+}
 
 const getVideosTypes = async()=>{
     const d = await getVideoCategoryList({page:0,pageSize:50})
@@ -218,19 +268,78 @@ const getVideosTypes = async()=>{
 getVideosTypes()
 
 // 选择视频
-const choseVideo = row =>{
+
+const choseVideo = async(row) =>{
   // console.log(row)
   options.value.push({
     value: row.ID,
     label: row.transOutName,
   })
+    // 判断是否已经加入过
+  let isTrue = videoLists.value.includes(row.ID)
+ 
+  if(isTrue){
+    ElNotification({
+      title:'提醒',
+      type:'warning',
+      message:'该视频已经选过了！'
+    })
+    return
+  }
   videoLists.value.push(row.ID)
+  // 创建操作
+ 
+  let subData ={
+    videoSpecialId:formData.value.ID, //专辑ID
+    fileTransId:row.ID,  //视频ID
+    fileTransOutName:row.transOutName,
+    fileTransUuid:row.transUuid
+  }
+// 发起视频插入专辑
+  const d= await createVideoSpecialFileTrans(subData)
+  if(d.code===0){
+    ElNotification({
+      title:'提示',
+      type:'success',
+      message:'添加专辑成功！'
+    })
+    // console.log(tableDataSearch.value)
+  }
+
+  // 删除已经选择过的数据
+  var delete_index = (tableDataSearch.value|| []).findIndex((el) => el.ID=== row.ID)
+  tableDataSearch.value.splice(delete_index, 1)
+  // console.log(tableDataSearch.value)
+}
+// 删除专辑内的视频
+const removeTag= async (e)=>{
+  let deletData={
+    fileTransId:e[0], //videoId
+    videoSpecialId:formData.value.ID  //专辑
+  }
+  // 发起删除操作，对应的ID发起 ID=e[0]
+  const d =await deleteVideoSpecialFileTrans(deletData)
+  if(d.code===0){
+    ElNotification({
+      title:'删除',
+      type:'success',
+      message:'删除成功！'
+    })
+  }
+
 }
 
 // 自动化生成的字典（可能为空）以及字段
 const formData = ref({
         specialName: '',
         specialCategory: 0,
+        specialVideoNum: 0,
+        specialPic: '',
+        })
+// 创建专辑
+const formData1 = ref({
+        specialName: '',
+        specialCategory: 1,
         specialVideoNum: 0,
         specialPic: '',
         })
@@ -372,19 +481,20 @@ const onDelete = async() => {
 // 行为控制标记（弹窗内部需要增还是改）
 const type = ref('')
 
-// 更新行
+// 更新行 打开时获取已经分类的视频
 const updateVideoSpecialFunc = async(row) => {
     const res = await findVideoSpecial({ ID: row.ID })
+    // console.log(res)
     type.value = 'update'
-    if (res.code === 0) {
-        formData.value = res.data.revideoSpecial
+    if (res.code === 0) { 
+      formData.value = res.data.revideoSpecial
       res.data.revideoSpecial.specialFile.forEach(row=>{
           // 已归类的视频
           options.value.push({
-            value: row.ID,
+            value: row.fileTransId,
             label: row.fileTransOutName,
           })
-          videoLists.value.push(row.ID)
+          videoLists.value.push(row.fileTransId)
       })
 
         dialogFormVisible.value = true

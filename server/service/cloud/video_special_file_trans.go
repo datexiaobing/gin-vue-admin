@@ -1,6 +1,8 @@
 package cloud
 
 import (
+	"fmt"
+
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/cloud"
 	cloudReq "github.com/flipped-aurora/gin-vue-admin/server/model/cloud/request"
@@ -20,7 +22,8 @@ func (videoSpecialFileTransService *VideoSpecialFileTransService) CreateVideoSpe
 // DeleteVideoSpecialFileTrans 删除VideoSpecialFileTrans记录
 // Author [piexlmax](https://github.com/piexlmax)
 func (videoSpecialFileTransService *VideoSpecialFileTransService) DeleteVideoSpecialFileTrans(videoSpecialFileTrans cloud.VideoSpecialFileTrans) (err error) {
-	err = global.GVA_DB.Delete(&videoSpecialFileTrans).Error
+	fmt.Println(videoSpecialFileTrans)
+	err = global.GVA_DB.Where("video_special_id= ? AND file_trans_id =?", videoSpecialFileTrans.VideoSpecialId, videoSpecialFileTrans.FileTransId).Unscoped().Delete(&cloud.VideoSpecialFileTrans{}).Error
 	return err
 }
 
