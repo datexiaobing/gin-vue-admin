@@ -4,10 +4,10 @@
         <el-row>
             <el-button-group class="">
               <el-space>
-                <el-button icon="UploadFilled" disabled> 上传</el-button>
-                <el-button icon="Delete"> 删除</el-button>
-                <el-button icon="Back" @click="getPrewFolder"> 上一级</el-button>
-                <el-button icon="Refresh" @click="getTableData"> 刷新</el-button>
+                <el-button icon="UploadFilled" disabled> {{ t('videoDownload.createDownLoad')}}</el-button>
+                <el-button icon="Delete"> {{ t('videoDownload.delete')}}</el-button>
+                <el-button icon="Back" @click="getPrewFolder"> {{ t('videoDownload.back')}}</el-button>
+                <el-button icon="Refresh" @click="getTableData"> {{ t('videoDownload.refresh')}}</el-button>
               </el-space>
             </el-button-group>
         </el-row>
@@ -25,7 +25,7 @@
         >
         <el-table-column type="selection" width="55" />
 
-        <el-table-column align="left" label="文件名称" prop="fileName" >
+        <el-table-column align="left" :label="t('videoDownload.fileName')"  prop="fileName" >
           <template #default="scope">
             <el-icon v-if="scope.row.isDir"><Folder /></el-icon>
             <el-icon v-else><Files /></el-icon>
@@ -37,21 +37,21 @@
           </template>
         </el-table-column>
         <!-- if 子目录，更新datalist -->
-        <el-table-column align="left" label="文件大小" width="120" >
+        <el-table-column align="left" :label="t('videoDownload.fileSize')" width="120" >
             <template #default="scope">
                 {{bytesToSize(scope.row.fileSize)}}
             </template>
         </el-table-column>
-        <el-table-column align="left" label="修改时间" width="180" >
+        <el-table-column align="left" :label="t('videoDownload.modTime')" width="180" >
           <template #default="scope">{{ formatDate(scope.row.modTime) }}</template>
         </el-table-column>
 
-        <el-table-column align="left" label="操作" width="330">
+        <el-table-column align="left" :label="t('videoDownload.operate')" width="330">
             <template #default="scope">             
               <el-space class="b-contain">
-                <el-button type="danger"  icon="delete"  @click="deleteFiles(scope.row)">删除</el-button>
-                <el-button type="success"  icon="EditPen"   @click="changeFileNames(scope.row)">重命名</el-button>
-                <el-button v-if="scope.row.fileType === 'video'" type="primary"  icon="CopyDocument" @click="moveVideo(scope.row)" >移到视频源</el-button>
+                <el-button type="danger"  icon="delete"  @click="deleteFiles(scope.row)">{{t('videoDownload.delete')}} </el-button>
+                <el-button type="success"  icon="EditPen"   @click="changeFileNames(scope.row)">{{t('videoDownload.reName')}}</el-button>
+                <el-button v-if="scope.row.fileType === 'video'" type="primary"  icon="CopyDocument" @click="moveVideo(scope.row)" >{{t('videoDownload.removeVideo')}}</el-button>
               </el-space>
             </template>
         </el-table-column>
@@ -70,13 +70,13 @@
 
     <el-dialog v-model="dialogFormVisibleFileName">
       <el-form label-position="left" label-width="120">
-        <el-form-item label="新名称">
+        <el-form-item :label="t('videoDownload.newName')">
           <el-input v-model="newFileNameData.newFileName"  />
         </el-form-item>
       </el-form>
       <template #footer>
         <div class="dialog-footer">
-          <el-button size="small" type="primary" @click="enterChangeFileName">确 定</el-button>
+          <el-button size="small" type="primary" @click="enterChangeFileName">{{t('videoDownload.confirm')}}</el-button>
         </div>
       </template>
     </el-dialog>
@@ -106,7 +106,8 @@ import {
 import { getDictFunc, formatDate, formatBoolean, filterDict,bytesToSize } from '@/utils/format'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { ref, reactive } from 'vue'
-
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 
 const dir=ref("/")
 

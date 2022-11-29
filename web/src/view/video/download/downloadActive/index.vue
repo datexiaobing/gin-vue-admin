@@ -4,10 +4,10 @@
         <el-row>
             <el-button-group class="">
               <el-space>
-                <el-button icon="UploadFilled" @click="createDownLoad"> 新建</el-button>
-                <el-button icon="VideoPlay" disabled> 开始</el-button>
-                <el-button icon="VideoPause" @click="pause"> 暂停</el-button>
-                <el-button icon="Delete" @click="remove"> 删除</el-button>
+                <el-button icon="UploadFilled" @click="createDownLoad">{{ t('videoDownload.createDownLoad')}}</el-button>
+                <el-button icon="VideoPlay" disabled> {{ t('videoDownload.begin')}}</el-button>
+                <el-button icon="VideoPause" @click="pause"> {{ t('videoDownload.pause')}}</el-button>
+                <el-button icon="Delete" @click="remove"> {{ t('videoDownload.delete')}}</el-button>
               </el-space>
             </el-button-group>
         </el-row>
@@ -25,17 +25,17 @@
         >
         <el-table-column type="selection" width="55" />
 
-        <el-table-column align="left" label="文件名称"  >
+        <el-table-column align="left" :label="t('videoDownload.fileName')"  >
           <template #default="scope">
             {{scope.row.fileName}}
           </template>
         </el-table-column>
-        <el-table-column align="left" label="文件大小" width="120" >
+        <el-table-column align="left" :label="t('videoDownload.fileSize')" width="120" >
             <template #default="scope">
                 {{bytesToSize(scope.row.fileLength)}}
             </template>
         </el-table-column>
-        <el-table-column align="left" label="进度" width="200" >
+        <el-table-column align="left" :label="t('videoDownload.progress')" width="200" >
             <template #default="scope">
                 <div class="pro-cell">
                     <el-progress 
@@ -46,7 +46,7 @@
                 </div>
             </template>
         </el-table-column>
-        <el-table-column align="left" label="上传/下载" prop="videoTitle" width="120" >
+        <el-table-column align="left" :label="t('videoDownload.speed')" prop="videoTitle" width="120" >
             <template #default="scope">
                 <div class="speed-cell">
                     <div class="in-cell">
@@ -74,18 +74,18 @@
             />
         </div>
         
-     <el-dialog v-model="createDown" title="新建下载">
+     <el-dialog v-model="createDown" :title="t('videoDownload.create')">
         <el-tabs v-model="activeName" class="demo-tabs" >
-          <el-tab-pane label="链接" name="first">
+          <el-tab-pane :label="t('videoDownload.link')" name="first">
               <el-input
                 v-model="textarea"
                 :rows="10"
                 type="textarea"
-                placeholder="每个下载链接占一行，一次最多下载10个任务。"
+                :placeholder="t('videoDownload.linkDetail')"
               />
 
           </el-tab-pane>
-          <el-tab-pane label="种子文件" name="second">
+          <el-tab-pane :label="t('videoDownload.seedFile')" name="second">
             <el-upload
             :action="`${path}/api/videoList/getVideoListListUpload`"
             :headers="{ 'x-token': userStore.token }"
@@ -95,13 +95,13 @@
           >
               <el-icon class="el-icon--upload"><upload-filled /></el-icon>
               <div class="el-upload__text">
-                拖拽种子 <em>或点击上传种子</em>
+                {{t('videoDownload.dragSeed')}} <em>{{t('videoDownload.uploadSeed')}}</em>
               </div>
             </el-upload>
           </el-tab-pane>
         </el-tabs>
       <template #footer>
-        <el-button size="small" type="success" @click="downNow"> 立即下载
+        <el-button size="small" type="success" @click="downNow"> {{t('videoDownload.downloadNow')}}
         </el-button>
       </template>
      </el-dialog>   
@@ -128,6 +128,8 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import { ref, reactive ,onBeforeUnmount} from 'vue'
 import { useUserStore } from '@/pinia/modules/user'
 import {start,close} from '@/utils/npgress'
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 
 let timer =ref(null)
 // 设置查询定时器

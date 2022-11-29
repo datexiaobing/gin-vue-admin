@@ -20,6 +20,8 @@ func (s *FileTransRouter) InitFileTransRouter(Router *gin.RouterGroup) {
 		fileTransRouter.DELETE("deleteFileTransByIds", fileTransApi.DeleteFileTransByIds) // 批量删除FileTrans
 		fileTransRouter.PUT("updateFileTrans", fileTransApi.UpdateFileTrans)              // 更新FileTrans
 		fileTransRouter.POST("getShareList", fileTransApi.GetShareList)
+		fileTransRouter.POST("uploadQiniu", fileTransApi.UploadQiniu) //上传到七牛云
+		fileTransRouter.POST("uploadAli", fileTransApi.UploadAli)     //上传到阿里
 	}
 	{
 		fileTransRouterWithoutRecord.GET("findFileTrans", fileTransApi.FindFileTrans)       // 根据ID获取FileTrans

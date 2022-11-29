@@ -16,7 +16,7 @@
                   <p style="font-size:40px;text-align:center">
                     {{v.count}}
                   </p>
-                  <span style="margin-top:15%;text-align:center">{{v.content}}</span>
+                  <span style="margin-top:15%;text-align:center">{{t(`mymenus.${v.content}`)}}</span>
               </div>
             </div>
           </div>
@@ -33,6 +33,8 @@ import {ref} from 'vue'
 import {
 getVideosStatus
 } from '@/api/videoList'
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 
 const getData =async ()=>{
   const d = await getVideosStatus()
@@ -41,28 +43,28 @@ const getData =async ()=>{
   box_data.value=[{
   count:dd.activiteNum,
   color:'background: rgb(25, 190, 107); ',
-  content:'正在转码'
+  content:'transRun'
 },{
   count:dd.waitingNum,
   color:'background: rgb(255, 153, 0); ',
-  content:'转码等待'
+  content:'transWait'
 },{
   count:dd.doneNum,
   color:'background: rgb(237, 64, 20); ',
-  content:'已完成/已停止'
+  content:'downloadStop'
 },
 {
   count:dd.numActive,
   color:'background: rgb(25, 190, 107); ',
-  content:'正在下载'
+  content:'downloadActive'
 },{
   count:dd.numWaiting,
   color:'background: rgb(255, 153, 0); ',
-  content:'下载等待'
+  content:'downloadWait'
 },{
   count:dd.numStopped,
   color:'background: rgb(237, 64, 20); ',
-  content:'已完成/已停止'
+  content:'downloadStop'
 },
 ]
  

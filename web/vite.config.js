@@ -6,6 +6,8 @@ import * as path from 'path'
 import * as dotenv from 'dotenv'
 import * as fs from 'fs'
 import vuePlugin from '@vitejs/plugin-vue'
+import vueI18n from '@intlify/vite-plugin-vue-i18n' // added by mohamed hassan to support multilanguage
+
 import GvaPosition from './vitePlugin/gvaPosition'
 import GvaPositionServer from './vitePlugin/codeServer'
 // @see https://cn.vitejs.dev/config/
@@ -54,10 +56,9 @@ export default ({
     define: {
       'process.env': {}
     },
-    // publicPath: '/newpc/',
     server: {
       // 如果使用docker-compose开发模式，设置为false
-      // open: true,
+      open: true,
       port: process.env.VITE_CLI_PORT,
       proxy: {
         // 把key的路径代理到target位置
@@ -80,6 +81,11 @@ export default ({
     esbuild,
     optimizeDeps,
     plugins: [
+      // added by mohamed hassan to support multilangauge
+      vueI18n({
+        include: path.resolve(__dirname, './src/locales/**'),
+        compositionOnly: true
+      }), // end of adding by mohamed hassan to support multilangauge
       GvaPositionServer(),
       GvaPosition(),
       legacyPlugin({

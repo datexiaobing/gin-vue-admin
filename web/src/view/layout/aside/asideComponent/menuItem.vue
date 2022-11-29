@@ -17,7 +17,7 @@
         <el-icon v-if="routerInfo.meta.icon">
           <component :is="routerInfo.meta.icon" />
         </el-icon>
-        <span class="gva-menu-item-title">{{ routerInfo.meta.title }}</span>
+        <span class="gva-menu-item-title">{{ t(`mymenus.${routerInfo.name}`) }}</span>
       </div>
     </template>
   </el-menu-item>
@@ -31,6 +31,9 @@ export default {
 
 <script setup>
 import { ref, watch } from 'vue'
+
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 
 const props = defineProps({
   routerInfo: {

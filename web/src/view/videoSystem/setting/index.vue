@@ -3,9 +3,9 @@
         <el-card>
             <el-form :model="formData" label-position="left" ref="elFormRef" :rules="rule" label-width="120px">
 
-                <el-form-item label="分辨率:"  prop="transResolution" >
+                <el-form-item :label="t('transform.transResolution')"  prop="transResolution" >
                 <!-- <el-input v-model="formData.transResolution" :clearable="true"  placeholder="请输入" /> -->
-                <el-select v-model="formData.transResolution" placeholder="请选择">
+                <el-select v-model="formData.transResolution" placeholder="">
                     <el-option
                     v-for="item in transResolutionOption"
                     :key="item.value"
@@ -14,28 +14,28 @@
                     </el-option>
                 </el-select>
                 </el-form-item>
-                <el-form-item label="跳过片头:"  prop="transSeektimeHeard" >
+                <el-form-item :label="t('videoList.SeektimeHeard')"  prop="transSeektimeHeard" >
                 <!-- <el-input v-model.number="formData.transSeektimeHeard" :clearable="true" placeholder="请输入" /> -->
                 <el-slider v-model="formData.transSeektimeHeard" />
                 </el-form-item>
-                <el-form-item label="跳过片尾:"  prop="transSeektimeTail" >
+                <el-form-item :label="t('videoList.SeektimeTail')"  prop="transSeektimeTail" >
                 <!-- <el-input v-model.number="formData.transSeektimeTail" :clearable="true" placeholder="请输入" /> -->
                 <el-slider v-model="formData.transSeektimeTail" />
                 </el-form-item>
-                <el-form-item label="跑马灯"   >
+                <el-form-item :label="t('videoList.paoma')"   >
                 <el-switch v-model="paoma" size="large" @change="changePao"/>
                 </el-form-item>
-                <el-form-item label="跑马灯文字:"  prop="transDrawtextString" v-show="paoma">
+                <el-form-item :label="t('videoList.drawtextString')"  prop="transDrawtextString" v-show="paoma">
                 <el-input v-model="formData.transDrawtextString" :clearable="true"  />
                 </el-form-item>
-                <el-form-item label="跑马灯位置:"  prop="transDrawtextPosition" v-show="paoma">
+                <el-form-item :label="t('videoList.drawtextPosition')"  prop="transDrawtextPosition" v-show="paoma">
                 <!-- <el-input v-model="formData.transDrawtextPosition" :clearable="true"  /> -->
                 <el-radio-group v-model.number="formData.transDrawtextPosition" >
-                    <el-radio-button label="1">上</el-radio-button>
-                    <el-radio-button label="2">下</el-radio-button>
+                    <el-radio-button label="1">{{t('videoList.up')}}</el-radio-button>
+                    <el-radio-button label="2">{{t('videoList.down')}}</el-radio-button>
                 </el-radio-group>
                 </el-form-item>
-                <el-form-item label="跑马灯颜色:"  prop="transDrawtextColor"  v-show="paoma">
+                <el-form-item :label="t('videoList.drawtextColor')"  prop="transDrawtextColor"  v-show="paoma">
                 <!-- <el-input v-model="formData.transDrawtextColor" :clearable="true"  placeholder="请输入" /> -->
                 <el-radio-group v-model.number="formData.transDrawtextColor" >
                     
@@ -57,22 +57,37 @@
 
                 </el-radio-group>
                 </el-form-item>
-                <el-form-item label="跑马灯大小:"  prop="transDrawtextFontsize" v-show="paoma">
+                <el-form-item :label="t('videoList.drawtextFontsize')"  prop="transDrawtextFontsize" v-show="paoma">
                 <!-- <el-input v-model.number="formData.transDrawtextFontsize" :clearable="true" placeholder="请输入" /> -->
                 <el-slider v-model="formData.transDrawtextFontsize" />
                 </el-form-item>
-                <el-form-item label="跑马灯时长:"  prop="transDrawtextDuration" v-show="paoma" >
+                <el-form-item :label="t('videoList.drawtextDuration')"  prop="transDrawtextDuration" v-show="paoma" >
                 <!-- <el-input v-model="formData.transDrawtextDuration" :clearable="true"  placeholder="请输入" /> -->
                 <el-slider v-model="formData.transDrawtextDuration" />
                 </el-form-item>
-                <el-form-item label="跑马灯间隔:"  prop="transDrawtextInterval" v-show="paoma">
-                <el-slider v-model="formData.transDrawtextInterval" />
-                <!-- <el-input v-model="formData.transDrawtextInterval" :clearable="true"  placeholder="请输入" /> -->
+                <el-form-item :label="t('videoList.drawtextInterval')"  prop="transDrawtextInterval" v-show="paoma">
+                    <el-slider v-model="formData.transDrawtextInterval" />
+                    <!-- <el-input v-model="formData.transDrawtextInterval" :clearable="true"  placeholder="请输入" /> -->
                 </el-form-item>
-
+                <!-- ali oss keys -->
+                <el-form-item :label="t('videoList.ali')"    >
+                    <el-switch v-model="ali" size="large" @change="changeAli"/>
+                </el-form-item>
+                <el-form-item :label="t('ali.endPoint')" v-show="ali">
+                    <el-input v-model="formData.aliEndPoint" :clearable="true"  placeholder="" />
+                </el-form-item>
+                <el-form-item :label="t('ali.accessKeyId')" v-show="ali">
+                    <el-input v-model="formData.aliAccessKeyId" :clearable="true"  placeholder="" />
+                </el-form-item>
+                <el-form-item :label="t('ali.accessKeySecret')" v-show="ali">
+                    <el-input v-model="formData.aliAccessKeySecret" :clearable="true"  placeholder="" />
+                </el-form-item>
+                <el-form-item :label="t('ali.bucketName')" v-show="ali">
+                    <el-input v-model="formData.aliBucketName" :clearable="true"  placeholder="" />
+                </el-form-item> 
                 <el-form-item >
-                    <el-button  size="large" @click="onReset">重置</el-button>
-                    <el-button type="primary" size="large" @click="onSubmit">确定</el-button>
+                    <el-button  size="large" @click="onReset">{{t('category.reset')}}</el-button>
+                    <el-button type="primary" size="large" @click="onSubmit">{{t('category.confirm')}}</el-button>
                 </el-form-item>
             </el-form>
             
@@ -92,8 +107,12 @@ import {
 } from '@/api/cloudConfig'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import {ref} from 'vue'
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 
-const paoma =ref(true)
+const paoma =ref(false)
+const ali =ref(false)
+
 const transResolutionOption =ref([{label:'1080P',value:3},{label:'720P',value:2},{label:'360p',value:1}])
 
 const getConfig =async ()=>{
@@ -108,6 +127,10 @@ getConfig()
 const changePao=(val)=>{
   paoma.value = val
 }
+const changeAli=(val)=>{
+  ali.value = val
+}
+
 const formData = ref(
       {
         transDrawtextSwitch:1, //是否开启跑马灯
@@ -120,6 +143,10 @@ const formData = ref(
         transResolution: 1,
         transSeektimeHeard: 0,
         transSeektimeTail: 0,
+        aliEndPoint:'',
+        aliAccessKeyId:'',
+        aliAccessKeySecret:'',
+        aliBucketName:''
         })
 
 const onSubmit = async()=>{

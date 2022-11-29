@@ -29,7 +29,9 @@
                  activeValue === name(item) ? userStore.activeColor : '#ddd',
              }"
            />
-            {{ fmtTitle(item.meta.title,item) }}</span>
+           {{t(`mymenus.${item.name}`)}}
+            </span>
+            <!-- {{ fmtTitle(item.meta.title,item) }} -->
         </template>
       </el-tab-pane>
     </el-tabs>
@@ -40,10 +42,10 @@
       :style="{ left: left + 'px', top: top + 'px' }"
       class="contextmenu"
     >
-      <li @click="closeAll">关闭所有</li>
-      <li @click="closeLeft">关闭左侧</li>
-      <li @click="closeRight">关闭右侧</li>
-      <li @click="closeOther">关闭其他</li>
+      <li @click="closeAll">{{ t('historyComponent.closeAll') }}</li>
+      <li @click="closeLeft">{{ t('historyComponent.closeLeft') }}</li>
+      <li @click="closeRight">{{ t('historyComponent.closeRight') }}</li>
+      <li @click="closeOther">{{ t('historyComponent.closeOther') }}</li>
     </ul>
   </div>
 </template>
@@ -60,6 +62,10 @@ import { computed, onUnmounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useUserStore } from '@/pinia/modules/user'
 import { fmtTitle } from '@/utils/fmtRouterTitle'
+
+import { useI18n } from 'vue-i18n' 
+const i18n = useI18n()
+const { t } = useI18n()
 
 const route = useRoute()
 const router = useRouter()
@@ -356,6 +362,7 @@ onUnmounted(() => {
   margin: 0;
   padding: 7px 16px;
 }
+
 .contextmenu li:hover {
   background: #f2f2f2;
   cursor: pointer;

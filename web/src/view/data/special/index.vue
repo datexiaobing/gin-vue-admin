@@ -2,11 +2,11 @@
   <div>
     <div class="gva-search-box">
       <el-form :inline="true" :model="searchInfo" class="demo-form-inline">
-        <el-form-item label="专辑名称">
-         <el-input v-model="searchInfo.specialName" placeholder="搜索条件" />
+        <el-form-item :label="t('special.specialName')">
+         <el-input v-model="searchInfo.specialName" placeholder="" />
 
         </el-form-item>
-        <el-form-item label="分类">
+        <el-form-item :label="t('special.category')">
             
              <!-- <el-input v-model.number="searchInfo.specialCategory" placeholder="搜索条件" /> -->
              <el-select v-model="searchInfo.specialCategory">
@@ -20,22 +20,22 @@
 
         </el-form-item>
         <el-form-item>
-          <el-button size="small" type="primary" icon="search" @click="onSubmit">查询</el-button>
-          <el-button size="small" icon="refresh" @click="onReset">重置</el-button>
+          <el-button size="small" type="primary" icon="search" @click="onSubmit">{{t('category.search')}}</el-button>
+          <el-button size="small" icon="refresh" @click="onReset">{{t('category.reset')}}</el-button>
         </el-form-item>
       </el-form>
     </div>
     <div class="gva-table-box">
         <div class="gva-btn-list">
-            <el-button size="small" type="primary" icon="plus" @click="open1">新增</el-button>
+            <el-button size="small" type="primary" icon="plus" @click="open1">{{t('category.create')}}</el-button>
             <el-popover v-model:visible="deleteVisible" placement="top" width="160">
-            <p>确定要删除吗？</p>
+            <p>{{t('category.deleteConfirm')}}</p>
             <div style="text-align: right; margin-top: 8px;">
-                <el-button size="small" type="primary" link @click="deleteVisible = false">取消</el-button>
-                <el-button size="small" type="primary" @click="onDelete">确定</el-button>
+                <el-button size="small" type="primary" link @click="deleteVisible = false">{{t('category.cancel')}}</el-button>
+                <el-button size="small" type="primary" @click="onDelete">{{t('category.confirm')}}</el-button>
             </div>
             <template #reference>
-                <el-button icon="delete" size="small" style="margin-left: 10px;" :disabled="!multipleSelection.length" @click="deleteVisible = true">删除</el-button>
+                <el-button icon="delete" size="small" style="margin-left: 10px;" :disabled="!multipleSelection.length" @click="deleteVisible = true">{{t('category.delete')}}</el-button>
             </template>
             </el-popover>
         </div>
@@ -52,24 +52,24 @@
         >
         <el-table-column type="selection" width="55" />
 
-        <el-table-column align="left" label="专辑名称" prop="specialName" min-width="300" />
-        <el-table-column align="left" label="分类"  prop="specialCategory" width="120" >
+        <el-table-column align="left" :label="t('special.specialName')" prop="specialName" min-width="300" />
+        <el-table-column align="left" :label="t('special.category')"  prop="specialCategory" width="120" >
           <template #default="scope">
-            {{scope.row.specialCategory ?filterDict(scope.row.specialCategory ,categorys):'未分类'}}
+            {{scope.row.specialCategory ?filterDict(scope.row.specialCategory ,categorys):t('transform.noCategory')}}
           </template>
         </el-table-column>
-        <el-table-column align="left" label="视频数量" prop="specialVideoNum" width="120" />
-        <el-table-column align="left" label="创建时间" width="180">
+        <el-table-column align="left" :label="t('special.videoNumber')" prop="specialVideoNum" width="120" />
+        <el-table-column align="left" :label="t('category.createTime')"  width="180">
             <template #default="scope">{{ formatDate(scope.row.CreatedAt) }}</template>
         </el-table-column>
-        <el-table-column align="left" label="更新时间" width="180">
+        <el-table-column align="left" :label="t('special.updateTime')" width="180">
             <template #default="scope">{{ formatDate(scope.row.UpdatedAt) }}</template>
         </el-table-column>
         <!-- <el-table-column align="left" label="专辑图片" prop="specialPic" width="120" /> -->
-        <el-table-column align="left" label="操作" min-width="180">
+        <el-table-column align="left" :label="t('special.operation')" min-width="180">
             <template #default="scope">
-            <el-button type="success"  icon="edit"  class="table-button" @click="updateVideoSpecialFunc(scope.row)">更新</el-button>
-            <el-button type="danger"  icon="delete"  @click="deleteRow(scope.row)">删除</el-button>
+            <el-button type="success"  icon="edit"  class="table-button" @click="updateVideoSpecialFunc(scope.row)">{{t('category.change')}}</el-button>
+            <el-button type="danger"  icon="delete"  @click="deleteRow(scope.row)">{{t('category.delete')}}</el-button>
             </template>
         </el-table-column>
         </el-table>
@@ -85,12 +85,12 @@
             />
         </div>
     </div>
-    <el-dialog v-model="dialogFormVisible" :before-close="closeDialog" title="更新">
+    <el-dialog v-model="dialogFormVisible" :before-close="closeDialog" :title="t('category.create')">
       <el-form :model="formData" label-position="left" ref="elFormRef" :rules="rule" label-width="120px">
-        <el-form-item label="专辑名称:"  prop="specialName" >
-          <el-input v-model="formData.specialName" :clearable="true"  placeholder="请输入" />
+        <el-form-item :label="t('special.specialName')"  prop="specialName" >
+          <el-input v-model="formData.specialName" :clearable="true"  placeholder="" />
         </el-form-item>
-        <el-form-item label="分类:" >
+        <el-form-item :label="t('special.category')" >
           <!-- <el-input v-model.number="formData.specialCategory" :clearable="true" placeholder="请输入" /> -->
                 <el-select v-model="formData.specialCategory" style="width:100%">
                     <el-option
@@ -107,7 +107,7 @@
         <!-- <el-form-item label="专辑图片:"  prop="specialPic" >
           <el-input v-model="formData.specialPic" :clearable="true"  placeholder="请输入" />
         </el-form-item> -->
-        <el-form-item label="关联视频"> 
+        <el-form-item :label="t('special.video')"> 
           <el-cascader
           style="width:100%"
           :show-all-levels="false"
@@ -119,7 +119,7 @@
           </el-cascader>
         </el-form-item>
       </el-form>
-      <el-form-item label="查询视频"> 
+      <el-form-item :label="t('special.searchVideo')"> 
 
         <el-table
         border
@@ -132,9 +132,9 @@
         >
           <!-- <el-table-column type="selection" width="55" /> -->
           <el-table-column align="left" label="uuid" prop="transUuid" min-width="300"/>
-          <el-table-column align="left" label="视频名称" prop="transOutName" width="200" fixed />
+          <el-table-column align="left" :label="t('special.videoName')" prop="transOutName" width="200" fixed />
           
-          <el-table-column align="center" label="操作" width="180">
+          <el-table-column align="center" :label="t('special.operation')" width="180">
             <template #header>
               <el-input v-model="searchName"   >
                 <template #append>
@@ -143,7 +143,7 @@
               </el-input>
             </template>
             <template #default="scope">
-              <el-button type="success" size="large" icon="Select" @click="choseVideo(scope.row)">选择</el-button>
+              <el-button type="success" size="large" icon="Select" @click="choseVideo(scope.row)">{{t('special.chose')}}</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -151,18 +151,18 @@
       </el-form-item>
       <template #footer>
         <div class="dialog-footer">
-          <el-button size="small" @click="closeDialog">取 消</el-button>
-          <el-button size="small" type="primary" @click="enterDialog">确 定</el-button>
+          <el-button size="small" @click="closeDialog">{{t('category.cancel')}}</el-button>
+          <el-button size="small" type="primary" @click="enterDialog">{{t('category.confirm')}}</el-button>
         </div>
       </template>
     </el-dialog>
 
-    <el-dialog v-model="dialogFormVisible1" :before-close="closeDialog" title="新建">
+    <el-dialog v-model="dialogFormVisible1" :before-close="closeDialog" :title="t('category.create')">
       <el-form :model="formData1" label-position="left"  :rules="rule" label-width="120px">
-        <el-form-item label="专辑名称:"  prop="specialName" >
-          <el-input v-model="formData1.specialName" :clearable="true"  placeholder="请输入" />
+        <el-form-item :label="t('special.specialName')"  prop="specialName" >
+          <el-input v-model="formData1.specialName" :clearable="true"  placeholder="" />
         </el-form-item>
-        <el-form-item label="分类:" >
+        <el-form-item :label="t('special.category')" >
           <!-- <el-input v-model.number="formData.specialCategory" :clearable="true" placeholder="请输入" /> -->
               <el-select v-model="formData1.specialCategory" style="width:100%">
                   <el-option
@@ -176,8 +176,8 @@
       </el-form>
       <template #footer>
         <div class="dialog-footer">
-          <el-button size="small" @click="closeDialog1">取 消</el-button>
-          <el-button size="small" type="primary" @click="enterDialog1">确 定</el-button>
+          <el-button size="small" @click="closeDialog1">{{t('category.cancel')}}</el-button>
+          <el-button size="small" type="primary" @click="enterDialog1">{{t('category.confirm')}}</el-button>
         </div>
       </template>
     </el-dialog>
@@ -225,6 +225,9 @@ import {
 import { getDictFunc, formatDate, formatBoolean, filterDict } from '@/utils/format'
 import { ElMessage, ElMessageBox, ElNotification, } from 'element-plus'
 import { ref, reactive } from 'vue'
+
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 
 const searchName =ref('')
 const dialogFormVisible1 =ref(false)

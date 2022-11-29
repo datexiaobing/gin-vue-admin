@@ -3,10 +3,10 @@
     <el-container>
         <el-row>
             <el-button-group class="">
-                <el-button icon="UploadFilled" disabled> 新建</el-button>
-                <el-button icon="VideoPlay" @click="reDown"> 开始</el-button>
-                <el-button icon="VideoPause" disabled> 暂停</el-button>
-                <el-button icon="Delete" @click="remove"> 删除</el-button>
+                <el-button icon="UploadFilled" disabled>{{ t('videoDownload.createDownLoad')}}</el-button>
+                <el-button icon="VideoPlay" @click="reDown"> {{ t('videoDownload.begin')}}</el-button>
+                <el-button icon="VideoPause" disabled> {{ t('videoDownload.pause')}}</el-button>
+                <el-button icon="Delete" @click="remove"> {{ t('videoDownload.delete')}}</el-button>
             </el-button-group>
         </el-row>
     </el-container>
@@ -23,17 +23,17 @@
         >
         <el-table-column type="selection" width="55" />
 
-        <el-table-column align="left" label="文件名称" >
+        <el-table-column align="left" :label="t('videoDownload.fileName')"  >
           <template #default="scope">
             {{scope.row.fileName}}
           </template>
         </el-table-column>
-        <el-table-column align="left" label="文件大小" width="120" >
+        <el-table-column align="left" :label="t('videoDownload.fileSize')" width="120" >
             <template #default="scope">
                 {{bytesToSize(scope.row.fileLength)}}
             </template>
         </el-table-column>
-        <el-table-column align="left" label="进度" width="200" >
+        <el-table-column align="left" :label="t('videoDownload.progress')" width="200" >
             <template #default="scope">
                 <div class="pro-cell">
                     <el-progress 
@@ -44,7 +44,7 @@
                 </div>
             </template>
         </el-table-column>
-        <el-table-column align="left" label="上传/下载" prop="videoTitle" width="120" >
+        <el-table-column align="left" :label="t('videoDownload.speed')" prop="videoTitle" width="120" >
             <template #default="scope">
                 <div class="speed-cell">
                     <div class="in-cell">
@@ -93,7 +93,8 @@ import { getDictFunc, formatDate, formatBoolean, filterDict,bytesToSize } from '
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { ref, reactive,onBeforeUnmount } from 'vue'
 import {start,close} from '@/utils/npgress'
-
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 
 let timer =ref(null)
 // 设置查询定时器

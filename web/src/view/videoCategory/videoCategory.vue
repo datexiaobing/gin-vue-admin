@@ -2,13 +2,13 @@
   <div>
     <div class="gva-search-box">
       <el-form :inline="true" :model="searchInfo" class="demo-form-inline">
-      <el-form-item label="创建时间">
+      <!-- <el-form-item label="创建时间">
       <el-date-picker v-model="searchInfo.startCreatedAt" type="datetime" placeholder="开始时间"></el-date-picker>
        —
       <el-date-picker v-model="searchInfo.endCreatedAt" type="datetime" placeholder="结束时间"></el-date-picker>
-      </el-form-item>
+      </el-form-item> -->
         <el-form-item label="分类名">
-         <el-input v-model="searchInfo.categoryName" placeholder="搜索条件" />
+         <el-input v-model="searchInfo.categoryName" placeholder="" />
 
         </el-form-item>
         <el-form-item>

@@ -6,9 +6,9 @@
                 <el-space>
                     <!-- <el-button icon="UploadFilled"> 上传</el-button>
                     <el-button icon="HelpFilled"> 转码</el-button> -->
-                    <el-button icon="Delete"> 删除</el-button>
+                    <el-button icon="Delete"> {{t('videoDownload.delete')}}</el-button>
                     <!-- <el-button icon="Back"> 上一级</el-button> -->
-                    <el-button icon="Refresh" @click="getTableData"> 刷新</el-button>
+                    <el-button icon="Refresh" @click="getTableData"> {{ t('videoDownload.refresh')}}</el-button>
                 </el-space>
                 </el-button-group>
             </el-row>
@@ -26,46 +26,46 @@
         @selection-change="handleSelectionChange"
         >
         <el-table-column type="selection" width="55" />
-        <el-table-column align="left" label="视频源文件" prop="transInputName" width="300" fixed />
+        <el-table-column align="left" :label="t('transform.transInputName')" prop="transInputName" width="300" fixed />
         <el-table-column align="left" label="uuid" prop="transUuid" min-width="300"/>
-        <el-table-column align="left" label="视频名称" prop="transOutName" min-width="200" />
+        <el-table-column align="left" :label="t('transform.transOutName')" prop="transOutName" min-width="200" />
         
         <!-- <el-table-column align="left" label="1正在2完成" prop="transStatus" width="120" /> -->
-        <el-table-column align="left" label="分类"  width="120" >
+        <el-table-column align="left" :label="t('transform.category')"  width="120" >
             <template #default="scope">
             <el-tag size="large"  type="success"> 
-                {{scope.row.transType ? filterDict(scope.row.transType,videosType):'未分类'}}
+                {{scope.row.transType ? filterDict(scope.row.transType,videosType):t('transform.noCategory')}}
             </el-tag>
             </template>
         </el-table-column>
 
-        <el-table-column align="left" label="关联专辑数量" prop="transTypeNum" width="120" />
-        <el-table-column align="left" label="分辨率" prop="transResolution" width="120" >
+        <el-table-column align="left" :label="t('transform.transTypeNum')" prop="transTypeNum" width="120" />
+        <el-table-column align="left" :label="t('transform.transResolution')" prop="transResolution" width="120" >
           <template #default="scope">
             {{scope.row.transResolution ===3?'1080P':scope.row.transResolution ===2?'720P':'360P'}}
           </template>
         </el-table-column>
-        <el-table-column align="left" label="片长" prop="transDuration" width="120" />
-        <el-table-column align="left" label="字幕文件" prop="transSubtitle" width="180" />
-        <el-table-column align="left" label="跳过片头" prop="transSeektimeHeard" width="120" >
+        <el-table-column align="left" :label="t('transform.transDuration')" prop="transDuration" width="120" />
+        <el-table-column align="left" :label="t('transform.transSubtitle')" prop="transSubtitle" width="180" />
+        <el-table-column align="left" :label="t('videoList.SeektimeHeard')"  prop="transSeektimeHeard" width="120" >
             <template #default="scope">
-                {{scope.row.transSeektimeHeard ?scope.row.transSeektimeHeard :'否'}}
+                {{scope.row.transSeektimeHeard ?scope.row.transSeektimeHeard :'no'}}
             </template>
         </el-table-column>
-        <el-table-column align="left" label="跳过片尾" prop="transSeektimeTail" width="120" >
+        <el-table-column align="left" :label="t('videoList.SeektimeTail')" prop="transSeektimeTail" width="120" >
              <template #default="scope">
-                {{scope.row.transSeektimeTail ?scope.row.transSeektimeTail:'否'}}
+                {{scope.row.transSeektimeTail ?scope.row.transSeektimeTail:'no'}}
             </template>
         </el-table-column>   
 
-        <el-table-column align="left" label="跑马灯"  width="120" >
+        <el-table-column align="left" :label="t('videoList.paoma')"  width="120" >
           <template #default="scope">
-            <el-tag size="large" plain @click="seeDrawtext(scope.row)"> 查看</el-tag>
+            <el-tag size="large" plain @click="seeDrawtext(scope.row)"> {{t('transform.look')}}</el-tag>
           </template>
         </el-table-column>
 
-        <el-table-column align="left" label="oss云" prop="transOssStatus" width="120" >
-            <el-tag size="large" type="info"> 等待同步</el-tag>
+        <el-table-column align="left" label="oss" prop="transOssStatus" width="120" >
+            <el-tag size="large" type="info"> {{t('transform.ossWaiting')}}</el-tag>
         </el-table-column>
         <!-- <el-table-column align="left" label="跑马灯颜色" prop="transDrawtextColor" width="120" />
         <el-table-column align="left" label="跑马灯位置" prop="transDrawtextPosition" width="120" />
@@ -74,20 +74,20 @@
         <el-table-column align="left" label="跑马灯文字" prop="transDrawtextString" width="120" />
         <el-table-column align="left" label="文字大小" prop="transDrawtextFontsize" width="120" />
         <el-table-column align="left" label="字幕开关" prop="transSubtitleSwitch" width="120" /> -->
-        <el-table-column align="left" label="转码开始时间" width="180">
+        <el-table-column align="left" :label="t('transform.transStartTime')" width="180">
             <template #default="scope">{{ formatDate(scope.row.CreatedAt) }}</template>
         </el-table-column>
-        <el-table-column align="left" label="转码结束时间" width="180">
+        <el-table-column align="left" :label="t('transform.transEndTime')" width="180">
             <!-- <template #default="scope">{{ formatDate(scope.row.UpdatedAt) }}</template> -->
         </el-table-column>
-        <el-table-column align="left" label="创建时间" width="180">
+        <el-table-column align="left" :label="t('transform.createTime')" width="180">
             <template #default="scope">{{ formatDate(scope.row.CreatedAt) }}</template>
         </el-table-column>
-        <el-table-column align="left" label="更新时间" width="180">
+        <el-table-column align="left" :label="t('transform.updateTime')" width="180">
             <template #default="scope">{{ formatDate(scope.row.UpdatedAt) }}</template>
         </el-table-column>        
 
-        <el-table-column align="left" label="进度/状态" prop="transProgressRate" min-width="280" fixed="right">
+        <el-table-column align="left" :label="t('transform.transProgressRate')" prop="transProgressRate" min-width="280" fixed="right">
            <template #default="scope">
             <div class="pro-cell">
                 <el-progress 
@@ -100,9 +100,9 @@
         </el-table-column>
         
         <!-- <el-table-column align="left" label="上传错误" prop="transOssError" width="120" /> -->
-        <el-table-column align="left" label="操作" fixed="right" width="120">
+        <el-table-column align="left" :label="t('videoDownload.operate')" fixed="right" width="120">
             <template #default="scope">
-            <el-button type="danger"  icon="delete"  @click="deleteRow(scope.row)">删除</el-button>
+            <el-button type="danger"  icon="delete"  @click="deleteRow(scope.row)">{{ t('videoDownload.delete')}}</el-button>
             </template>
         </el-table-column>
         </el-table>
@@ -118,50 +118,50 @@
             />
         </div>
 
-      <el-dialog v-model="dialogFormVisible"  title="跑马灯详情">
+      <el-dialog v-model="dialogFormVisible"  :title="t('videoList.paoma')">
         <el-descriptions
           :column="1"
           border
           >
           <el-descriptions-item>
             <template #label>
-              字幕开关
+              {{t('transform.subtitleSwitch')}}
             </template>
-            {{drawtext.transSubtitleSwitch?'开':'关'}}
+            {{drawtext.transSubtitleSwitch? t('transform.open'):t('transform.close')}}
           </el-descriptions-item>
           <el-descriptions-item>
             <template #label>
-              文字位置
+             {{t('videoList.drawtextPosition')}}
             </template>
-            {{drawtext.transDrawtextPosition===1?'上':'下'}}
+            {{drawtext.transDrawtextPosition===1?t('videoList.up'):t('videoList.down')}}
           </el-descriptions-item>
            <el-descriptions-item>
             <template #label>
-              文字颜色
+               {{t('videoList.drawtextColor')}}
             </template>
             {{drawtext.transDrawtextColor?drawtext.transDrawtextColor:''}}
           </el-descriptions-item>   
           <el-descriptions-item>
             <template #label>
-              文字大小
+               {{t('videoList.drawtextFontsize')}}
             </template>
             {{drawtext.transDrawtextFontsize?drawtext.transDrawtextFontsize:''}}
           </el-descriptions-item>
           <el-descriptions-item>
             <template #label>
-              滚动时长
+              {{t('videoList.drawtextDuration')}}
             </template>
             {{drawtext.transDrawtextDuration?drawtext.transDrawtextDuration:''}}
           </el-descriptions-item>    
           <el-descriptions-item>
             <template #label>
-              滚动间隔
+               {{t('videoList.drawtextInterval')}}
             </template>
             {{drawtext.transDrawtextInterval?drawtext.transDrawtextInterval:''}}
           </el-descriptions-item>
           <el-descriptions-item>
             <template #label>
-              文字内容
+              {{t('videoList.drawtextString')}}
             </template>
             {{drawtext.transDrawtextString?drawtext.transDrawtextString:''}}
           </el-descriptions-item>           
@@ -170,7 +170,7 @@
 
         <template #footer>
           <div class="dialog-footer">
-            <el-button type="primary" @click="closeDialog">关闭</el-button>
+            <el-button type="primary" @click="closeDialog"> {{t('transform.close')}}</el-button>
           </div>
         </template>
       </el-dialog>
@@ -197,6 +197,8 @@ import { getDictFunc, formatDate, formatBoolean, filterDict } from '@/utils/form
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { ref, reactive,onBeforeUnmount } from 'vue'
 import {start,close} from '@/utils/npgress'
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 
 // const videosType = ref([{value:1,label:'喜剧'}])
 const videosType = ref([])

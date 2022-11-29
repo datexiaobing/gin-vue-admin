@@ -187,3 +187,35 @@ func (fileTransApi *FileTransApi) GetShareList(c *gin.Context) {
 		}, "获取成功", c)
 	}
 }
+
+// upload qiniu
+func (fileTransApi *FileTransApi) UploadQiniu(c *gin.Context) {
+	var share cloud.FileTrans
+	err := c.ShouldBindJSON(&share)
+	if err != nil {
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+	if err := fileTransService.UploadQiniu(share); err != nil {
+		global.GVA_LOG.Error("上传失败!", zap.Error(err))
+		response.FailWithMessage("创建上传七牛失败", c)
+	} else {
+		response.OkWithMessage("正在上传到七牛", c)
+	}
+}
+
+// upload qiniu
+func (fileTransApi *FileTransApi) UploadAli(c *gin.Context) {
+	var share cloud.FileTrans
+	err := c.ShouldBindJSON(&share)
+	if err != nil {
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+	if err := fileTransService.UploadAli(share); err != nil {
+		global.GVA_LOG.Error("上传失败!", zap.Error(err))
+		response.FailWithMessage("创建上传ali失败", c)
+	} else {
+		response.OkWithMessage("正在上传到ali", c)
+	}
+}

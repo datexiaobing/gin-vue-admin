@@ -9,6 +9,8 @@ type FileShare struct {
 	FileName string `json:"fileName" form:"fileName"`
 	M3Url    string `josn:"m3Url" form:"m3Url"`
 	PicUrl   string `json:"picUrl" form:"picUrl"`
+	QiniuUrl string `json:"qiniuUrl" form:"qiniuUrl"`
+	AliUrl   string `json:"aliUrl" form:"aliUrl"`
 }
 
 // FileTrans 结构体
@@ -36,6 +38,8 @@ type FileTrans struct {
 	TransSubtitleSwitch   *int    `json:"transSubtitleSwitch" form:"transSubtitleSwitch" gorm:"column:trans_subtitle_switch;comment:字幕开关;size:10;"`
 	TransProgressRate     float64 `json:"transProgressRate" form:"transProgressRate" gorm:"column:trans_progress_rate;comment:进度状态;"`
 	TransOssStatus        int     `json:"transOssStatus" form:"transOssStatus" gorm:"column:trans_oss_status;comment:0等待上传1已经上传;size:10;"`
+	TransOssQiniuStatus   int     `json:"transOssQiniuStatus" form:"transOssQiniuStatus" gorm:"column:trans_oss_qiniu_status;comment:1等待上传2上传中3已完成;default:1;size:10;"`
+	TransOssAliStatus     int     `json:"transOssAliStatus" form:"transOssAliStatus" gorm:"column:trans_oss_ali_status;comment:1等待上传2上传中3已完成;default:1;size:10;"`
 	TransOssError         string  `json:"transOssError" form:"transOssError" gorm:"column:trans_oss_error;comment:上传错误;size:255;"`
 	CreatedBy             uint    `gorm:"column:created_by;comment:创建者"`
 	UpdatedBy             uint    `gorm:"column:updated_by;comment:更新者"`

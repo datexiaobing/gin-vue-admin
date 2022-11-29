@@ -34,6 +34,16 @@ export const useUserStore = defineStore('user', () => {
     router.push({ name: 'Init', replace: true })
   }
 
+  const language = ref(window.localStorage.getItem('langauge') || 'en')
+  // added by mohame hassan to allow store selected language for multilanguage support.
+  const setLanguage = (val) => {
+    console.log('setLanguage called with value: ' + val)
+    language.value = val
+  }
+
+  const getLanguage = () => {
+    return language.value
+  }
   const ResetUserInfo = (value = {}) => {
     userInfo.value = {
       ...userInfo.value,
@@ -136,6 +146,9 @@ export const useUserStore = defineStore('user', () => {
   return {
     userInfo,
     token,
+    language,
+    setLanguage, // added by mohame hassan to allow store selected language for multilanguage support.
+    getLanguage,
     NeedInit,
     ResetUserInfo,
     GetUserInfo,

@@ -5,7 +5,7 @@
       <el-aside class="main-cont main-left gva-aside">
         <div class="tilte" :style="{background: backgroundColor}">
           <img alt class="logoimg" :src="$GIN_VUE_ADMIN.appLogo">
-          <div v-if="isSider" class="tit-text" :style="{color:textColor}">{{ $GIN_VUE_ADMIN.appName }}</div>
+          <div v-if="isSider" class="tit-text" :style="{color:textColor}">{{ t('app.name') }}</div>
         </div>
         <Aside class="aside" />
       </el-aside>
@@ -31,12 +31,33 @@
                         <el-breadcrumb-item
                           v-for="item in matched.slice(1,matched.length)"
                           :key="item.path"
-                        >{{ fmtTitle(item.meta.title,route) }}</el-breadcrumb-item>
+                        >{{t(`mymenus.${item.name}`)}}</el-breadcrumb-item>
+                        <!-- {{ fmtTitle(item.meta.title,route) }} -->
                       </el-breadcrumb>
                     </el-col>
                     <el-col :xs="12" :lg="9" :md="9" :sm="14" :xl="9">
                       <div class="right-box">
                         <Search />
+                         
+                            <el-dropdown trigger="click" @command="handleSetLanguage">
+                              <div class="dp-flex justify-content-center align-items height-full width-full">
+                                <span class="header-avatar" style="cursor: pointer">
+                                  <img src="@/assets/language.svg" style="width: 30px; height: 30px;">
+                                  <span style="margin-left: 5px">{{t('app.language')}}</span>
+                                  <el-icon>
+                                    <arrow-down />
+                                  </el-icon>
+                                </span>
+                              </div>
+                              <template #dropdown>
+                                <el-dropdown-menu>
+                                  <el-dropdown-item :disabled="$i18n.locale==='en'" command="en"><img src="@/assets/flags/en.svg" class="img1">English</el-dropdown-item>
+                                  <el-dropdown-item :disabled="$i18n.locale==='zh'" command="zh"><img src="@/assets/flags/zh.svg" class="img1">中文</el-dropdown-item>
+                                  <el-dropdown-item :disabled="$i18n.locale==='ar'" command="ar"><img src="@/assets/flags/ko.png" class="img1">한국어</el-dropdown-item>
+                                </el-dropdown-menu>
+                              </template>
+                            </el-dropdown>
+                         
                         <el-dropdown>
                           <div class="dp-flex justify-content-center align-items height-full width-full">
                             <span class="header-avatar" style="cursor: pointer">
@@ -51,18 +72,18 @@
                             <el-dropdown-menu class="dropdown-group">
                               <el-dropdown-item>
                                 <span style="font-weight: 600;">
-                                  当前角色：{{ userStore.userInfo.authority.authorityName }}
+                                  {{ t('layout.currentRole') }}{{ userStore.userInfo.authority.authorityName }}
                                 </span>
                               </el-dropdown-item>
                               <template v-if="userStore.userInfo.authorities">
                                 <el-dropdown-item v-for="item in userStore.userInfo.authorities.filter(i=>i.authorityId!==userStore.userInfo.authorityId)" :key="item.authorityId" @click="changeUserAuth(item.authorityId)">
                                   <span>
-                                    切换为：{{ item.authorityName }}
+                                    {{ t('layout.switchTo') }}{{ item.authorityName }}
                                   </span>
                                 </el-dropdown-item>
                               </template>
-                              <el-dropdown-item icon="avatar" @click="toPerson">个人信息</el-dropdown-item>
-                              <el-dropdown-item icon="reading-lamp" @click="userStore.LoginOut">登 出</el-dropdown-item>
+                              <el-dropdown-item icon="avatar" @click="toPerson">{{ t('layout.personalInfo') }}</el-dropdown-item>
+                              <el-dropdown-item icon="reading-lamp" @click="userStore.LoginOut">{{ t('layout.logout') }}</el-dropdown-item>
                             </el-dropdown-menu>
                           </template>
                         </el-dropdown>
@@ -108,6 +129,8 @@ export default {
 </script>
 
 <script setup>
+import Cookies from 'js-cookie' // added by mohamed hassan to support multilanguage
+import { useI18n } from 'vue-i18n' // added by mohamed hassan to support multilanguage
 import Aside from '@/view/layout/aside/index.vue'
 import HistoryComponent from '@/view/layout/aside/historyComponent/history.vue'
 import Search from '@/view/layout/search/search.vue'
@@ -121,7 +144,36 @@ import { useRouter, useRoute } from 'vue-router'
 import { useRouterStore } from '@/pinia/modules/router'
 import { fmtTitle } from '@/utils/fmtRouterTitle'
 import { useUserStore } from '@/pinia/modules/user'
+import { ElMessage } from 'element-plus'
 
+const i18n = useI18n()
+const { t } = useI18n()
+const userStore = useUserStore()
+
+const getLanguage = () => {
+  var lang = Cookies.get('language')
+  return (lang || 'ar')
+}
+
+getLanguage()
+const handleSetLanguage = (lang) => {
+  // console.log('handleSetLanguage() called with value: ' + lang)
+  i18n.locale.value = lang
+
+  userStore.setLanguage(lang)
+
+  // console.log('userStore handleSetLanguage() called with value: ' + userStore.getLanguage())
+
+  Cookies.set('language', lang)
+
+
+  ElMessage({
+    message: t('general.langSwitch'),
+    type: 'success'
+  })
+
+  // this.$emit('handerevent')
+}
 const router = useRouter()
 const route = useRoute()
 const routerStore = useRouterStore()
@@ -173,7 +225,7 @@ onMounted(() => {
   }
 })
 
-const userStore = useUserStore()
+
 
 const textColor = computed(() => {
   if (userStore.sideMode === 'dark') {
@@ -196,6 +248,8 @@ const backgroundColor = computed(() => {
 })
 
 const matched = computed(() => route.meta.matched)
+
+
 
 const changeUserAuth = async(id) => {
   const res = await setUserAuthority({
@@ -245,6 +299,11 @@ const changeShadow = () => {
 
 <style lang="scss">
 @import '@/style/mobile.scss';
+.img1 {
+  padding-right: 20px;
+  width: 20px;
+  height: 20px;
+}
 
 .dark{
   background-color: #191a23 !important;

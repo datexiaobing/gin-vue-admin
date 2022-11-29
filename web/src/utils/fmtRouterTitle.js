@@ -1,3 +1,5 @@
+
+
 export const fmtTitle = (title, now) => {
   const reg = /\$\{(.+?)\}/
   const reg_g = /\$\{(.+?)\}/g

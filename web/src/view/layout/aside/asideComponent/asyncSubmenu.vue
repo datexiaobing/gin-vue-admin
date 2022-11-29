@@ -6,13 +6,13 @@
         <el-icon v-if="routerInfo.meta.icon">
           <component :is="routerInfo.meta.icon" />
         </el-icon>
-        <span>{{ routerInfo.meta.title }}</span>
+        <span>{{ t(`mymenus.${routerInfo.name}`) }}</span>
       </div>
       <template v-else>
         <el-icon v-if="routerInfo.meta.icon">
           <component :is="routerInfo.meta.icon" />
         </el-icon>
-        <span>{{ routerInfo.meta.title }}</span>
+        <span>{{ t(`mymenus.${routerInfo.name}`)}}</span>
       </template>
     </template>
     <slot />
@@ -27,6 +27,9 @@ export default {
 
 <script setup>
 import { ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
+
 const props = defineProps({
   routerInfo: {
     default: function() {

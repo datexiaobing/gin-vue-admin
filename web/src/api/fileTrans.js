@@ -105,3 +105,20 @@ export const getShareList = (data) => {
   })
 }
 
+// 上传到七牛云
+export const uploadQiniu = (data) => {
+  return service({
+    url: '/fileTrans/uploadQiniu',
+    method: 'post',
+    data
+  })
+}
+
+// 上传到Ali
+export const uploadAli = (data) => {
+  return service({
+    url: '/fileTrans/uploadAli',
+    method: 'post',
+    data
+  })
+}

@@ -4,11 +4,11 @@
         <el-row>
             <el-button-group class="">
               <el-space>
-                <el-button icon="UploadFilled" disabled> 上传</el-button>
-                <el-button icon="HelpFilled"> 转码</el-button>
-                <el-button icon="Delete"> 删除</el-button>
-                <el-button icon="Back"  @click="getPrewFolder"> 上一级</el-button>
-                <el-button icon="Refresh" @click="getTableData"> 刷新</el-button>
+                <el-button icon="UploadFilled" disabled> {{t('videoDownload.upload')}}</el-button>
+                <el-button icon="HelpFilled"> {{t('videoDownload.trans')}}</el-button>
+                <el-button icon="Delete"> {{t('videoDownload.delete')}}</el-button>
+                <el-button icon="Back"  @click="getPrewFolder">{{t('videoDownload.back')}}</el-button>
+                <el-button icon="Refresh" @click="getTableData"> {{t('videoDownload.refresh')}}</el-button>
               </el-space>
             </el-button-group>
         </el-row>
@@ -25,7 +25,7 @@
     >
     <el-table-column type="selection" width="55" />
 
-    <el-table-column align="left" label="文件名称" prop="fileName"  >
+    <el-table-column align="left" :label="t('videoDownload.fileName')" prop="fileName"  >
         <template #default="scope">
           <el-icon v-if="scope.row.isDir"><Folder /></el-icon>
           <el-icon v-else><Files /></el-icon>
@@ -37,23 +37,23 @@
         </template>
     </el-table-column>
     <!-- if 子目录，更新datalist -->
-    <el-table-column align="left" label="文件大小" width="120" >
+    <el-table-column align="left" :label="t('videoDownload.fileSize')" width="120" >
         <template #default="scope">
             {{bytesToSize(scope.row.fileSize)}}
         </template>
     </el-table-column>
-    <el-table-column align="left" label="修改时间" width="180" >
+    <el-table-column align="left" :label="t('videoDownload.modTime')" width="180" >
       <template #default="scope">{{ formatDate(scope.row.modTime) }}</template>
     </el-table-column>
 
-    <el-table-column align="left" label="操作" width="330">
+    <el-table-column align="left" :label="t('videoDownload.operate')" width="330">
         <template #default="scope">             
           <el-space class="b-contain">
-            <el-button type="danger"  icon="delete" @click="deleteFiles(scope.row)" >删除</el-button>
-            <el-button type="success"  icon="EditPen"  @click="changeFileNames(scope.row)" >重命名</el-button>
+            <el-button type="danger"  icon="delete" @click="deleteFiles(scope.row)" >{{t('videoDownload.delete')}}</el-button>
+            <el-button type="success"  icon="EditPen"  @click="changeFileNames(scope.row)" >{{t('videoDownload.reName')}}</el-button>
             <el-button v-if="scope.row.fileType === 'video'" 
             type="primary"  icon="HelpFilled" 
-            @click="trans(scope.row)">转码</el-button>
+            @click="trans(scope.row)">{{t('videoDownload.trans')}}</el-button>
           </el-space>
         </template>
     </el-table-column>
@@ -70,17 +70,17 @@
         />
     </div>
 
-    <el-dialog v-model="dialogFormVisible" :before-close="closeDialog" title="转码">
-      <el-form :model="formData" label-position="left" ref="elFormRef" :rules="rule" label-width="120px">
-        <el-form-item label="视频源:"  prop="fileName" >
+    <el-dialog v-model="dialogFormVisible" :before-close="closeDialog" :title="t('videoDownload.trans')">
+      <el-form :model="formData" label-position="left" ref="elFormRef" :rules="rule" label-width="150px">
+        <el-form-item :label="t('videoList.fileName')"  prop="fileName" >
           <el-input v-model="formData.fileName" disabled />
         </el-form-item>
-        <el-form-item label="视频重命名:"  prop="transOutName" >
+        <el-form-item :label="t('videoList.fileRename')"  prop="transOutName" >
           <el-input v-model="formData.transOutName" :clearable="true"   />
         </el-form-item>
-        <el-form-item label="视频分类:"  prop="transType" >
+        <el-form-item :label="t('videoList.videoCategory')"  prop="transType" >
           <!-- <el-input v-model.number="formData.transType" :clearable="true" placeholder="请输入" /> -->
-          <el-select v-model="formData.transType" placeholder="请选择">
+          <el-select v-model="formData.transType" placeholder="">
             <el-option
             v-for="item in transTypeOption"
             :key="item.value"
@@ -89,9 +89,9 @@
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="分辨率:"  prop="transResolution" >
+        <el-form-item :label="t('videoList.resolution')"  prop="transResolution" >
           <!-- <el-input v-model="formData.transResolution" :clearable="true"  placeholder="请输入" /> -->
-          <el-select v-model="formData.transResolution" placeholder="请选择">
+          <el-select v-model="formData.transResolution" placeholder="">
             <el-option
             v-for="item in transResolutionOption"
             :key="item.value"
@@ -100,28 +100,28 @@
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="跳过片头:"  prop="transSeektimeHeard" >
+        <el-form-item :label="t('videoList.seektimeHeard')"   prop="transSeektimeHeard" >
           <!-- <el-input v-model.number="formData.transSeektimeHeard" :clearable="true" placeholder="请输入" /> -->
           <el-slider v-model="formData.transSeektimeHeard" />
         </el-form-item>
-        <el-form-item label="跳过片尾:"  prop="transSeektimeTail" >
+        <el-form-item :label="t('videoList.seektimeTail')"   prop="transSeektimeTail" >
           <!-- <el-input v-model.number="formData.transSeektimeTail" :clearable="true" placeholder="请输入" /> -->
           <el-slider v-model="formData.transSeektimeTail" />
         </el-form-item>
-        <el-form-item label="跑马灯"   >
+        <el-form-item :label="t('videoList.paoma')"    >
           <el-switch v-model="paoma" size="large" @change="changePao"/>
         </el-form-item>
-        <el-form-item label="跑马灯文字:"  prop="transDrawtextString" v-show="paoma">
+        <el-form-item :label="t('videoList.drawtextString')"   prop="transDrawtextString" v-show="paoma">
           <el-input v-model="formData.transDrawtextString" :clearable="true"  />
         </el-form-item>
-        <el-form-item label="跑马灯位置:"  prop="transDrawtextPosition" v-show="paoma">
+        <el-form-item :label="t('videoList.drawtextPosition')"   prop="transDrawtextPosition" v-show="paoma">
           <!-- <el-input v-model="formData.transDrawtextPosition" :clearable="true"  /> -->
           <el-radio-group v-model.number="formData.transDrawtextPosition" >
-            <el-radio-button label="1">上</el-radio-button>
-            <el-radio-button label="2">下</el-radio-button>
+            <el-radio-button label="1">{{t('videoList.up') }}</el-radio-button>
+            <el-radio-button label="2">{{t('videoList.down')}}</el-radio-button>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="跑马灯颜色:"  prop="transDrawtextColor"  v-show="paoma">
+        <el-form-item :label="t('videoList.drawtextColor')"   prop="transDrawtextColor"  v-show="paoma">
           <!-- <el-input v-model="formData.transDrawtextColor" :clearable="true"  placeholder="请输入" /> -->
           <el-radio-group v-model.number="formData.transDrawtextColor" >
             
@@ -143,15 +143,15 @@
 
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="跑马灯大小:"  prop="transDrawtextFontsize" v-show="paoma">
+        <el-form-item :label="t('videoList.drawtextFontsize')"   prop="transDrawtextFontsize" v-show="paoma">
           <!-- <el-input v-model.number="formData.transDrawtextFontsize" :clearable="true" placeholder="请输入" /> -->
           <el-slider v-model="formData.transDrawtextFontsize" />
         </el-form-item>
-        <el-form-item label="跑马灯时长:"  prop="transDrawtextDuration" v-show="paoma" >
+        <el-form-item :label="t('videoList.drawtextDuration')"   prop="transDrawtextDuration" v-show="paoma" >
           <!-- <el-input v-model="formData.transDrawtextDuration" :clearable="true"  placeholder="请输入" /> -->
           <el-slider v-model="formData.transDrawtextDuration" />
         </el-form-item>
-        <el-form-item label="跑马灯间隔:"  prop="transDrawtextInterval" v-show="paoma">
+        <el-form-item :label="t('videoList.drawtextInterval')"   prop="transDrawtextInterval" v-show="paoma">
           <el-slider v-model="formData.transDrawtextInterval" />
           <!-- <el-input v-model="formData.transDrawtextInterval" :clearable="true"  placeholder="请输入" /> -->
         </el-form-item>
@@ -167,21 +167,21 @@
       </el-form>
       <template #footer>
         <div class="dialog-footer">
-          <el-button size="small" @click="closeDialog">取 消</el-button>
-          <el-button size="small" type="primary" @click="transPost">确 定</el-button>
+          <el-button size="small" @click="closeDialog">{{t('videoList.cancel')}}</el-button>
+          <el-button size="small" type="primary" @click="transPost">{{t('videoDownload.confirm')}}</el-button>
         </div>
       </template>
     </el-dialog>
 
     <el-dialog v-model="dialogFormVisibleFileName">
       <el-form label-position="left" label-width="120">
-        <el-form-item label="新名称">
+        <el-form-item :label="t('videoDownload.newName')">
           <el-input v-model="newFileNameData.newFileName"  />
         </el-form-item>
       </el-form>
       <template #footer>
         <div class="dialog-footer">
-          <el-button size="small" type="primary" @click="enterChangeFileName">确 定</el-button>
+          <el-button size="small" type="primary" @click="enterChangeFileName">{{t('videoDownload.confirm')}}</el-button>
         </div>
       </template>
     </el-dialog>
@@ -229,6 +229,9 @@ import {
 import { getDictFunc, formatDate, formatBoolean, filterDict,bytesToSize } from '@/utils/format'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { ref, reactive } from 'vue'
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
+
 
 const transResolutionOption =ref([{label:'1080P',value:3},{label:'720P',value:2},{label:'360p',value:1}])
 const transTypeOption =ref([])

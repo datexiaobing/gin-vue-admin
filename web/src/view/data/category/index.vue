@@ -2,32 +2,32 @@
   <div>
     <div class="gva-search-box">
       <el-form :inline="true" :model="searchInfo" class="demo-form-inline">
-      <el-form-item label="创建时间">
+      <!-- <el-form-item label="创建时间">
       <el-date-picker v-model="searchInfo.startCreatedAt" type="datetime" placeholder="开始时间"></el-date-picker>
        —
       <el-date-picker v-model="searchInfo.endCreatedAt" type="datetime" placeholder="结束时间"></el-date-picker>
-      </el-form-item>
-        <el-form-item label="分类名">
-         <el-input v-model="searchInfo.categoryName" placeholder="搜索条件" />
+      </el-form-item> -->
+        <el-form-item :label="t('category.categoryName')">
+         <el-input v-model="searchInfo.categoryName" placeholder="" />
 
         </el-form-item>
         <el-form-item>
-          <el-button size="small" type="primary" icon="search" @click="onSubmit">查询</el-button>
-          <el-button size="small" icon="refresh" @click="onReset">重置</el-button>
+          <el-button size="small" type="primary" icon="search" @click="onSubmit">{{t('category.search')}}</el-button>
+          <el-button size="small" icon="refresh" @click="onReset">{{t('category.reset')}}</el-button>
         </el-form-item>
       </el-form>
     </div>
     <div class="gva-table-box">
         <div class="gva-btn-list">
-            <el-button size="small" type="primary" icon="plus" @click="openDialog">新增</el-button>
+            <el-button size="small" type="primary" icon="plus" @click="openDialog">{{t('category.create')}}</el-button>
             <el-popover v-model:visible="deleteVisible" placement="top" width="160">
-            <p>确定要删除吗？</p>
+            <p>{{t('category.deleteConfirm')}}</p>
             <div style="text-align: right; margin-top: 8px;">
-                <el-button size="small" type="primary" link @click="deleteVisible = false">取消</el-button>
-                <el-button size="small" type="primary" @click="onDelete">确定</el-button>
+                <el-button size="small" type="primary" link @click="deleteVisible = false">{{t('category.cancel')}}</el-button>
+                <el-button size="small" type="primary" @click="onDelete">{{t('category.confirm')}}</el-button>
             </div>
             <template #reference>
-                <el-button icon="delete" size="small" style="margin-left: 10px;" :disabled="!multipleSelection.length" @click="deleteVisible = true">删除</el-button>
+                <el-button icon="delete" size="small" style="margin-left: 10px;" :disabled="!multipleSelection.length" @click="deleteVisible = true">{{t('category.delete')}}</el-button>
             </template>
             </el-popover>
         </div>
@@ -43,16 +43,16 @@
         @selection-change="handleSelectionChange"
         >
         <el-table-column type="selection" width="55" />
-        <el-table-column align="left" label="创建日期" width="180">
+        <el-table-column align="left" :label="t('category.createTime')" width="180">
             <template #default="scope">{{ formatDate(scope.row.CreatedAt) }}</template>
         </el-table-column>
-        <el-table-column align="left" label="分类ID" prop="ID"  />
-        <el-table-column align="left" label="分类名" prop="categoryName"  />
+        <el-table-column align="left" label="ID" prop="ID"  />
+        <el-table-column align="left" :label="t('category.categoryName')" prop="categoryName"  />
         <!-- <el-table-column align="left" label="分类图片" prop="categoryPic" width="120" /> -->
-        <el-table-column align="left" label="操作">
+        <el-table-column align="left" :label="t('videoDownload.operate')">
             <template #default="scope">
-            <el-button type="primary" link icon="edit" size="small" class="table-button" @click="updateVideoCategoryFunc(scope.row)">变更</el-button>
-            <el-button type="primary" link icon="delete" size="small" @click="deleteRow(scope.row)">删除</el-button>
+            <el-button type="primary" link icon="edit" size="small" class="table-button" @click="updateVideoCategoryFunc(scope.row)">{{t('category.change')}}</el-button>
+            <el-button type="primary" link icon="delete" size="small" @click="deleteRow(scope.row)">{{t('category.delete')}}</el-button>
             </template>
         </el-table-column>
         </el-table>
@@ -68,10 +68,10 @@
             />
         </div>
     </div>
-    <el-dialog v-model="dialogFormVisible" :before-close="closeDialog" title="新增/变更">
+    <el-dialog v-model="dialogFormVisible" :before-close="closeDialog" :title="t('category.create')">
       <el-form :model="formData" label-position="left" ref="elFormRef" :rules="rule" label-width="120px">
-        <el-form-item label="分类名:"  prop="categoryName" >
-          <el-input v-model="formData.categoryName" :clearable="true"  placeholder="请输入" />
+        <el-form-item :label="t('category.categoryName')"  prop="categoryName" >
+          <el-input v-model="formData.categoryName" :clearable="true"  placeholder="" />
         </el-form-item>
         <!-- <el-form-item label="分类图片:"  prop="categoryPic" >
           <el-input v-model="formData.categoryPic" :clearable="true"  placeholder="请输入" />
@@ -79,8 +79,8 @@
       </el-form>
       <template #footer>
         <div class="dialog-footer">
-          <el-button size="small" @click="closeDialog">取 消</el-button>
-          <el-button size="small" type="primary" @click="enterDialog">确 定</el-button>
+          <el-button size="small" @click="closeDialog">{{t('category.cancel')}}</el-button>
+          <el-button size="small" type="primary" @click="enterDialog">{{t('category.confirm')}}</el-button>
         </div>
       </template>
     </el-dialog>
@@ -107,6 +107,8 @@ import {
 import { getDictFunc, formatDate, formatBoolean, filterDict } from '@/utils/format'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { ref, reactive } from 'vue'
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 
 // 自动化生成的字典（可能为空）以及字段
 const formData = ref({
