@@ -265,7 +265,7 @@ func Transcoding(tconfig TranscodingConfig,
 				"text=" + "'" + wconfig.Text + "'" +
 				":fontcolor=" + Fontcolor + "" +
 				":fontsize=" + strconv.Itoa(Fontsize) + "" +
-				":fontfile=./simsun.ttc" +
+				":fontfile=./batang.ttf" +
 				":" + xy + "" +
 				""
 			options.VideoFilter = &VideoFilter

@@ -450,6 +450,7 @@
 		"language":"语言"
 	},
 	"mymenus":{
+		"transPost":"视频推送",
 		"videoSystem":"系统",
 		"sysSettings":"系统设置",
 		"password":"修改密码",

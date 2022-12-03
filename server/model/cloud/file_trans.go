@@ -44,6 +44,7 @@ type FileTrans struct {
 	CreatedBy             uint    `gorm:"column:created_by;comment:创建者"`
 	UpdatedBy             uint    `gorm:"column:updated_by;comment:更新者"`
 	DeletedBy             uint    `gorm:"column:deleted_by;comment:删除者"`
+	TransPost             uint    `json:"transPost" form:"transPost" gorm:"column:trans_post;default:1;comment:2推送成功"`
 }
 
 // TableName FileTrans 表名

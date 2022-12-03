@@ -46,6 +46,7 @@ func AliUpload(aliParams AliParams, localFileName string, objectName string) {
 	if err != nil {
 		HandleError(err)
 	}
+	fmt.Println("upload to ali oss success !", objectName)
 }
 
 func SignUrl(aliParams AliParams, ObjectName string) (signalUrl string) {

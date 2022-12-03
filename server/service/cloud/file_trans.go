@@ -233,7 +233,7 @@ func (fileTransService *FileTransService) GetShareList(share request.IdsShareReq
 	t := time.Now().Unix()
 	// fmt.Println("t:", t)
 	// 对选中的每一个视频制作m3u8和动态链接
-
+	//先判断上次获取链接的时间距离现在是否超过半小时？
 	for _, v := range fileTranss {
 		fileShare := cloud.FileShare{}
 		uuid := v.TransUuid
@@ -246,13 +246,27 @@ func (fileTransService *FileTransService) GetShareList(share request.IdsShareReq
 		fileShare.M3Url = path_1080 + fileTransService.GenerateUrlTail(path_1080, t, share)
 		fileShare.PicUrl = path_image + fileTransService.GenerateUrlTail(path_image, t, share)
 
+		// 获取系统配置
+		var sysConfig cloud.CloudConfig
+		err := global.GVA_DB.First(&sysConfig).Error
+		if err != nil {
+			fmt.Println("no  config information,ali url is null")
+			continue
+		}
+
 		// 查看七牛状态是否为3，只有已上传到七牛的再获取七牛防盗链
 		// fmt.Println("qiniu status:", v.TransOssQiniuStatus)
 		if v.TransOssQiniuStatus == 3 {
 			qiniu_base_url := "http://api.opkakao.com"
-			qiniu_path := "/" + uuid + "/index.m3u8"
+			qiniu_path := "video/hls/" + uuid + "/indexq.m3u8"      //七牛上的动态文件
 			qiniu_key := "b68bbea9219bc8aa778a4dab2d8b2f89eb9a45a8" //备用key:ffb8feba2288f2aa16993588c58adfabbdb9adaa
-			bucket := "8886media"
+			// bucket := "8886media"
+			var qiniu myoos.QiNiu
+			qiniu.AccessKey = "ROG6T97lMRotPTqwsUYin7g1SUovt9Hzyz-bJq4P"
+			qiniu.SecretKey = "u5ll7crp5o5Fsx154X44GXLdpfNJew3cei0wToDL"
+			//-------这两个会变----
+			qiniu.Bucket = "8886media"
+			qiniu.QiNiuKey = "b68bbea9219bc8aa778a4dab2d8b2f89eb9a45a8" //和bucket相关，设置bucket时新建
 			// ex_t, _ := strconv.ParseInt(share.Expires, 10, 64)
 			// var ex_t_qiniu int64
 			// ex_t_qiniu = 1800
@@ -260,15 +274,15 @@ func (fileTransService *FileTransService) GetShareList(share request.IdsShareReq
 			// 	ex_t_qiniu = ex_t
 			// }
 			exp_t := myoos.QiniuGetExpTime(1800) //默认30分钟有效
-			s := qiniu_key + qiniu_path + exp_t
+			s := qiniu_key + "/" + qiniu_path + exp_t
 			// fmt.Println("s", s)
 			qiniu_sign := utils.MD5V([]byte(s))
-			qiniu_url := qiniu_base_url + qiniu_path + "?sign=" + qiniu_sign + "&t=" + exp_t
+			qiniu_url := qiniu_base_url + "/" + qiniu_path + "?sign=" + qiniu_sign + "&t=" + exp_t
 			fileShare.QiniuUrl = qiniu_url
 			// 删除已有的uuid/index.m3u8 重新上传新的m3u8 带加密链接后缀的
 			// to_path := filepath.Join(uuid, "index.m3u8")
 			// to_s := filepath.ToSlash(to_path)
-			err := myoos.QiniuDeleteFile(bucket, uuid+"/index.m3u8") //删除m3u8
+			err := myoos.QiniuDeleteFile(qiniu, qiniu_path) //删除m3u8
 			if err != nil {
 				fmt.Println("删除原来的m3u8失败", err)
 			}
@@ -285,8 +299,8 @@ func (fileTransService *FileTransService) GetShareList(share request.IdsShareReq
 			new_list, _ := myoos.QiniuReadIndexM3u8(old_m3_path, uuid, qiniu_key, exp_t)
 			tools.GenerateNewM3u8(new_list, new_qiniu_path)
 			// 上传新的qiniu.m3u8文件
-			new_qiniu_os_path := uuid + "/index.m3u8"
-			err = myoos.QiniuUpload(new_qiniu_path, bucket, new_qiniu_os_path)
+			// new_qiniu_os_path := uuid + "/index.m3u8"
+			err = myoos.QiniuUpload(new_qiniu_path, qiniu_path, qiniu)
 			if err != nil {
 				fmt.Println(err)
 			}
@@ -299,10 +313,16 @@ func (fileTransService *FileTransService) GetShareList(share request.IdsShareReq
 			ali_save_base_path := "video/hls/" + uuid + "/"
 			// 系统配置
 			var aliParams myoos.AliParams
-			aliParams.Endpoint = "https://oss-cn-chengdu.aliyuncs.com"
-			aliParams.AccessKeyId = "LTAI5tFicacwP29FkJ2YNXqh"
-			aliParams.AccessKeySecret = "OGGweiUxSrD3Ub2dXpkMeyfB3tSTft"
-			aliParams.BucketName = "myceshialiyun"
+			// aliParams.Endpoint = "https://oss-cn-chengdu.aliyuncs.com"
+			// aliParams.AccessKeyId = "LTAI5tFicacwP29FkJ2YNXqh"
+			// aliParams.AccessKeySecret = "OGGweiUxSrD3Ub2dXpkMeyfB3tSTft"
+			// aliParams.BucketName = "myceshialiyun"
+
+			aliParams.Endpoint = sysConfig.AliEndPoint
+			aliParams.AccessKeyId = sysConfig.AliAccessKeyId
+			aliParams.AccessKeySecret = sysConfig.AliAccessKeySecret
+			aliParams.BucketName = sysConfig.AliBucketName
+
 			aliParams.Expt = 1800
 			// 生成新的签名后的m3u8
 			// base_path 系统存放m3u8的目录
@@ -418,15 +438,21 @@ func (fileTransService *FileTransService) UpToQiniu(file cloud.FileTrans) {
 	uuid := file.TransUuid
 	video_path := filepath.Join(base_path, uuid)
 	files, _ := ioutil.ReadDir(video_path)
-	qiniuBucktet := "8886media"
+	// qiniuBucktet := "8886media"
+	var qiniu myoos.QiNiu
+	qiniu.AccessKey = "ROG6T97lMRotPTqwsUYin7g1SUovt9Hzyz-bJq4P"
+	qiniu.SecretKey = "u5ll7crp5o5Fsx154X44GXLdpfNJew3cei0wToDL"
+	//-------这两个会变----
+	qiniu.Bucket = "8886media"
+	qiniu.QiNiuKey = "b68bbea9219bc8aa778a4dab2d8b2f89eb9a45a8"
 	for _, f := range files {
 		// fmt.Println(f.Name())
 		from_path := filepath.Join(video_path, f.Name())
 		form_s := filepath.ToSlash(from_path)
-		to_path := filepath.Join(uuid, f.Name())
+		to_path := filepath.Join("video/hls", uuid, f.Name())
 		to_s := filepath.ToSlash(to_path)
 		// fmt.Println(form_s, to_s, qiniuBucktet)
-		myoos.QiniuUpload(form_s, qiniuBucktet, to_s)
+		myoos.QiniuUpload(form_s, to_s, qiniu)
 
 	}
 	// 更新七牛oss为已上传
@@ -446,10 +472,23 @@ func (fileTransService *FileTransService) UpToAli(file cloud.FileTrans) {
 
 	// 系统配置 获取===
 	var aliParams myoos.AliParams
-	aliParams.Endpoint = "https://oss-cn-chengdu.aliyuncs.com"
-	aliParams.AccessKeyId = "LTAI5tFicacwP29FkJ2YNXqh"
-	aliParams.AccessKeySecret = "OGGweiUxSrD3Ub2dXpkMeyfB3tSTft"
-	aliParams.BucketName = "myceshialiyun"
+	// aliParams.Endpoint = "https://oss-cn-chengdu.aliyuncs.com"
+	// aliParams.AccessKeyId = "LTAI5tFicacwP29FkJ2YNXqh"
+	// aliParams.AccessKeySecret = "OGGweiUxSrD3Ub2dXpkMeyfB3tSTft"
+	// aliParams.BucketName = "myceshialiyun"
+
+	var sysConfig cloud.CloudConfig
+
+	err := global.GVA_DB.First(&sysConfig).Error
+	if err != nil {
+		fmt.Println("no  config information")
+		return
+	}
+	aliParams.Endpoint = sysConfig.AliEndPoint
+	aliParams.AccessKeyId = sysConfig.AliAccessKeyId
+	aliParams.AccessKeySecret = sysConfig.AliAccessKeySecret
+	aliParams.BucketName = sysConfig.AliBucketName
+
 	aliParams.Expt = 1800
 	// base_path 系统存放m3u8的目录
 	base_path := "/home/cloud/m3u8/nokey/"

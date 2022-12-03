@@ -450,6 +450,7 @@
 		"language":"Language"
 	},
 	"mymenus":{
+		"transPost":"Update Video",
 		"videoSystem":"videoSystem",
 		"sysSettings":"sysSettings",
 		"password":"change password",

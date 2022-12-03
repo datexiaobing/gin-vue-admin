@@ -128,7 +128,7 @@
 		"editSuccess": "تم التحرير بنجاح!",
 		"enable": "مفتوح",
 		"hint": "ملحوظة",
-		"langSwitch": "!!تم تغيير اللغة بنجاح",
+		"langSwitch": "글꼴 전환 성공",
 		"no": "لا",
 		"operations": "العمليات",
 		"pleaseSelect": "من فضلك إختار",
@@ -306,6 +306,7 @@
 		"language":"언어"
 	},
 	"mymenus":{
+		"transPost":"비디오 푸시",
 		"videoSystem":"시스템",
 		"sysSettings":"시스템 설정",
 		"password":"비밀번호 수정",

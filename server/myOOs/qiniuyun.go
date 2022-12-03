@@ -16,22 +16,30 @@ import (
 	"github.com/qiniu/api.v7/v7/storage"
 )
 
-func QiniuUpload(fileLocal string, qiniuBucket string,
-	uploadName string) (err error) {
+type QiNiu struct {
+	Bucket    string
+	AccessKey string
+	SecretKey string
+	QiNiuKey  string
+}
+
+func QiniuUpload(fileLocal string, uploadName string, qiniu QiNiu) (err error) {
 	cfg := storage.Config{}
 
 	// 空间对应的机房
-	cfg.Zone = &storage.ZoneXinjiapo
+	// cfg.Zone = &storage.ZoneXinjiapo
 	// 是否使用https域名
 	cfg.UseHTTPS = true
 	// 上传是否使用CDN上传加速
 	cfg.UseCdnDomains = false
 
-	accessKey := "ROG6T97lMRotPTqwsUYin7g1SUovt9Hzyz-bJq4P"
-	secretKey := "u5ll7crp5o5Fsx154X44GXLdpfNJew3cei0wToDL"
+	// accessKey := "ROG6T97lMRotPTqwsUYin7g1SUovt9Hzyz-bJq4P"
+	// secretKey := "u5ll7crp5o5Fsx154X44GXLdpfNJew3cei0wToDL"
+	accessKey := qiniu.AccessKey
+	secretKey := qiniu.SecretKey
 
 	localFile := fileLocal
-	bucket := qiniuBucket
+	bucket := qiniu.Bucket
 	key := uploadName //上传后保存的文件名,包含路径
 
 	putPolicy := storage.PutPolicy{
@@ -67,10 +75,12 @@ func QiniuGetExpTime(exp_t time.Duration) string {
 	return t_16
 }
 
-func QiniuDeleteFile(bucket string, key string) error {
+func QiniuDeleteFile(qiniu QiNiu, qiniu_file string) error {
 
-	accessKey := "ROG6T97lMRotPTqwsUYin7g1SUovt9Hzyz-bJq4P"
-	secretKey := "u5ll7crp5o5Fsx154X44GXLdpfNJew3cei0wToDL"
+	// accessKey := "ROG6T97lMRotPTqwsUYin7g1SUovt9Hzyz-bJq4P"
+	// secretKey := "u5ll7crp5o5Fsx154X44GXLdpfNJew3cei0wToDL"
+	accessKey := qiniu.AccessKey
+	secretKey := qiniu.SecretKey
 	mac := auth.New(accessKey, secretKey)
 
 	cfg := storage.Config{
@@ -79,11 +89,11 @@ func QiniuDeleteFile(bucket string, key string) error {
 	}
 	// 指定空间所在的区域，如果不指定将自动探测
 	// 如果没有特殊需求，默认不需要指定
-	cfg.Zone = &storage.ZoneXinjiapo
+	// cfg.Zone = &storage.ZoneXinjiapo
 	bucketManager := storage.NewBucketManager(mac, &cfg)
 
 	// key := "github.png"
-	err := bucketManager.Delete(bucket, key)
+	err := bucketManager.Delete(qiniu.Bucket, qiniu_file)
 	if err != nil {
 		fmt.Println(err)
 		return err
@@ -114,7 +124,7 @@ func QiniuReadIndexM3u8(path string, uuid string,
 			new_string = append(new_string, m3)
 			continue
 		}
-		s := qiniu_key + "/" + uuid + "/" + m3 + exp_t
+		s := qiniu_key + "/video/hls/" + uuid + "/" + m3 + exp_t
 		qiniu_sign := utils.MD5V([]byte(s))
 		tail := "?sign=" + qiniu_sign + "&t=" + exp_t
 		m3 = m3 + tail
