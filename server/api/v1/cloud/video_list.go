@@ -411,7 +411,7 @@ func (videoListApi *VideoListApi) ChangeFileName(c *gin.Context) {
 	}
 }
 
-// file rename
+// delete file
 func (videoListApi *VideoListApi) DeleteFile(c *gin.Context) {
 	var videoList request.FileReq
 	err := c.ShouldBindJSON(&videoList)
@@ -424,5 +424,21 @@ func (videoListApi *VideoListApi) DeleteFile(c *gin.Context) {
 		response.FailWithMessage(err.Error(), c)
 	} else {
 		response.OkWithMessage("更名成功", c)
+	}
+}
+
+// down m3u8
+func (videoListApi *VideoListApi) DownM3u8(c *gin.Context) {
+	var videoList request.FileReq
+	err := c.ShouldBindJSON(&videoList)
+	if err != nil {
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+	if err := videoListService.DownM3u8(videoList.DownloadPath, videoList.FileName); err != nil {
+		global.GVA_LOG.Error("失败!", zap.Error(err))
+		response.FailWithMessage(err.Error(), c)
+	} else {
+		response.OkWithMessage("正在下载...", c)
 	}
 }

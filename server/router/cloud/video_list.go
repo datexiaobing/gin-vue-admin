@@ -26,6 +26,7 @@ func (s *VideoListRouter) InitVideoListRouter(Router *gin.RouterGroup) {
 		videoListRouter.PUT("renameFile", videoListApi.RenameFiles)         //移动文件
 		videoListRouter.POST("changeFileName", videoListApi.ChangeFileName) //移动文件
 		videoListRouter.POST("deleteFile", videoListApi.DeleteFile)         //移动文件
+		videoListRouter.POST("downM3u8", videoListApi.DownM3u8)
 
 	}
 	{

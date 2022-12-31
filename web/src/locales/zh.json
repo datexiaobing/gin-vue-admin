@@ -513,8 +513,8 @@
 		"fileRename":"视频重命名:",
 		"videoCategory":"视频分类:",
 		"resolution":"分辨率:",
-		"SeektimeHeard":"跳过片头：",
-		"SeektimeTail":"跳过片尾：",
+		"seektimeHeard":"跳过片头：",
+		"seektimeTail":"跳过片尾：",
 		"paoma":"跑马灯：",
 		"drawtextString":"跑马灯文字：",
 		"drawtextPosition":"跑马灯位置：",
@@ -525,14 +525,15 @@
 		"drawtextDuration":"跑马灯时长:",
 		"drawtextInterval":"跑马灯间隔:",
 		"cancel":"取消",
-		"ali":"阿里云OSS"
+		"ali":"阿里云OSS",
+		"oss":"上传oss"
 	},
 	"transform":{
 		"transInputName":"源视频名",
 		"transOutName":"新视频名",
 		"category":"分类",
 		"noCategory":"未分类",
-		"transTypeNum":"专辑视频数量",
+		"transTypeNum":"专辑",
 		"transResolution":"分辨率",
 		"transDuration":"时长",
 		"transSubtitle":"字幕文件",
@@ -557,7 +558,8 @@
 		"qn":"七牛URL",
 		"al":"阿里URL",
 		"content":"内容",
-		"fetch":"获取"
+		"fetch":"获取",
+		"change":"修改"
 	},
 	"category":{
 		"categoryName":"分类名",

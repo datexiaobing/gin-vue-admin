@@ -2,6 +2,7 @@ package cloud
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
@@ -47,14 +48,17 @@ func (cloudPostService *CloudPostService) CreateCloudPost(cloudPost cloud.CloudP
 
 			body.Title = v.TransOutName
 			body.Uuid = v.TransUuid
-			body.ClassifyId = *v.TransType
+			body.ClassifyId = v.TransType //分类ID
 			body.Duration = v.TransDuration
-			var special cloud.VideoSpecialFileTrans
-			err = tx.Where("file_trans_id =?", v.ID).First(&special).Error
-			if err != nil {
-				return err
+			// var special cloud.VideoSpecialFileTrans
+			// err = tx.Where("file_trans_id =?", v.ID).First(&special).Error
+			// if err != nil {
+			// 	return errors.New("no special record")
+			// }
+			if v.TransTypeNum < 1 {
+				return errors.New("no special record")
 			}
-			body.SpecialId = int(special.VideoSpecialId)
+			body.SpecialId = v.TransTypeNum //专辑ID
 
 			res, err := json.Marshal(body)
 			if err != nil {

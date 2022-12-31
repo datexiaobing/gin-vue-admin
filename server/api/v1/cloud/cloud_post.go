@@ -2,21 +2,20 @@ package cloud
 
 import (
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
-    "github.com/flipped-aurora/gin-vue-admin/server/model/cloud"
-    "github.com/flipped-aurora/gin-vue-admin/server/model/common/request"
-    cloudReq "github.com/flipped-aurora/gin-vue-admin/server/model/cloud/request"
-    "github.com/flipped-aurora/gin-vue-admin/server/model/common/response"
-    "github.com/flipped-aurora/gin-vue-admin/server/service"
-    "github.com/gin-gonic/gin"
-    "go.uber.org/zap"
-    "github.com/flipped-aurora/gin-vue-admin/server/utils"
+	"github.com/flipped-aurora/gin-vue-admin/server/model/cloud"
+	cloudReq "github.com/flipped-aurora/gin-vue-admin/server/model/cloud/request"
+	"github.com/flipped-aurora/gin-vue-admin/server/model/common/request"
+	"github.com/flipped-aurora/gin-vue-admin/server/model/common/response"
+	"github.com/flipped-aurora/gin-vue-admin/server/service"
+	"github.com/flipped-aurora/gin-vue-admin/server/utils"
+	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 )
 
 type CloudPostApi struct {
 }
 
 var cloudPostService = service.ServiceGroupApp.CloudServiceGroup.CloudPostService
-
 
 // CreateCloudPost 创建CloudPost
 // @Tags CloudPost
@@ -34,12 +33,12 @@ func (cloudPostApi *CloudPostApi) CreateCloudPost(c *gin.Context) {
 		response.FailWithMessage(err.Error(), c)
 		return
 	}
-    cloudPost.CreatedBy = utils.GetUserID(c)
+	cloudPost.CreatedBy = utils.GetUserID(c)
 	if err := cloudPostService.CreateCloudPost(cloudPost); err != nil {
-        global.GVA_LOG.Error("创建失败!", zap.Error(err))
-		response.FailWithMessage("创建失败", c)
+		global.GVA_LOG.Error("推送失败!", zap.Error(err))
+		response.FailWithMessage(err.Error(), c)
 	} else {
-		response.OkWithMessage("创建成功", c)
+		response.OkWithMessage("推送成功", c)
 	}
 }
 
@@ -59,9 +58,9 @@ func (cloudPostApi *CloudPostApi) DeleteCloudPost(c *gin.Context) {
 		response.FailWithMessage(err.Error(), c)
 		return
 	}
-    cloudPost.DeletedBy = utils.GetUserID(c)
+	cloudPost.DeletedBy = utils.GetUserID(c)
 	if err := cloudPostService.DeleteCloudPost(cloudPost); err != nil {
-        global.GVA_LOG.Error("删除失败!", zap.Error(err))
+		global.GVA_LOG.Error("删除失败!", zap.Error(err))
 		response.FailWithMessage("删除失败", c)
 	} else {
 		response.OkWithMessage("删除成功", c)
@@ -79,14 +78,14 @@ func (cloudPostApi *CloudPostApi) DeleteCloudPost(c *gin.Context) {
 // @Router /cloudPost/deleteCloudPostByIds [delete]
 func (cloudPostApi *CloudPostApi) DeleteCloudPostByIds(c *gin.Context) {
 	var IDS request.IdsReq
-    err := c.ShouldBindJSON(&IDS)
+	err := c.ShouldBindJSON(&IDS)
 	if err != nil {
 		response.FailWithMessage(err.Error(), c)
 		return
 	}
-    deletedBy := utils.GetUserID(c)
-	if err := cloudPostService.DeleteCloudPostByIds(IDS,deletedBy); err != nil {
-        global.GVA_LOG.Error("批量删除失败!", zap.Error(err))
+	deletedBy := utils.GetUserID(c)
+	if err := cloudPostService.DeleteCloudPostByIds(IDS, deletedBy); err != nil {
+		global.GVA_LOG.Error("批量删除失败!", zap.Error(err))
 		response.FailWithMessage("批量删除失败", c)
 	} else {
 		response.OkWithMessage("批量删除成功", c)
@@ -109,9 +108,9 @@ func (cloudPostApi *CloudPostApi) UpdateCloudPost(c *gin.Context) {
 		response.FailWithMessage(err.Error(), c)
 		return
 	}
-    cloudPost.UpdatedBy = utils.GetUserID(c)
+	cloudPost.UpdatedBy = utils.GetUserID(c)
 	if err := cloudPostService.UpdateCloudPost(cloudPost); err != nil {
-        global.GVA_LOG.Error("更新失败!", zap.Error(err))
+		global.GVA_LOG.Error("更新失败!", zap.Error(err))
 		response.FailWithMessage("更新失败", c)
 	} else {
 		response.OkWithMessage("更新成功", c)
@@ -135,7 +134,7 @@ func (cloudPostApi *CloudPostApi) FindCloudPost(c *gin.Context) {
 		return
 	}
 	if recloudPost, err := cloudPostService.GetCloudPost(cloudPost.ID); err != nil {
-        global.GVA_LOG.Error("查询失败!", zap.Error(err))
+		global.GVA_LOG.Error("查询失败!", zap.Error(err))
 		response.FailWithMessage("查询失败", c)
 	} else {
 		response.OkWithData(gin.H{"recloudPost": recloudPost}, c)
@@ -159,14 +158,14 @@ func (cloudPostApi *CloudPostApi) GetCloudPostList(c *gin.Context) {
 		return
 	}
 	if list, total, err := cloudPostService.GetCloudPostInfoList(pageInfo); err != nil {
-	    global.GVA_LOG.Error("获取失败!", zap.Error(err))
-        response.FailWithMessage("获取失败", c)
-    } else {
-        response.OkWithDetailed(response.PageResult{
-            List:     list,
-            Total:    total,
-            Page:     pageInfo.Page,
-            PageSize: pageInfo.PageSize,
-        }, "获取成功", c)
-    }
+		global.GVA_LOG.Error("获取失败!", zap.Error(err))
+		response.FailWithMessage("获取失败", c)
+	} else {
+		response.OkWithDetailed(response.PageResult{
+			List:     list,
+			Total:    total,
+			Page:     pageInfo.Page,
+			PageSize: pageInfo.PageSize,
+		}, "获取成功", c)
+	}
 }

@@ -27,7 +27,7 @@
 
         <el-table-column align="left" :label="t('videoDownload.fileName')"  >
           <template #default="scope">
-            {{scope.row.fileName}}
+            {{scope.row.path}}
           </template>
         </el-table-column>
         <el-table-column align="left" :label="t('videoDownload.fileSize')" width="120" >
@@ -83,6 +83,13 @@
                 type="textarea"
                 :placeholder="t('videoDownload.linkDetail')"
               />
+              <el-divider content-position="left">add headers</el-divider>
+              <el-input
+                v-model="textareaHeader"
+                :rows="5"
+                type="textarea"
+                placeholder="referer: https://tv11.avsee.in/"
+              />
 
           </el-tab-pane>
           <el-tab-pane :label="t('videoDownload.seedFile')" name="second">
@@ -98,6 +105,23 @@
                 {{t('videoDownload.dragSeed')}} <em>{{t('videoDownload.uploadSeed')}}</em>
               </div>
             </el-upload>
+          </el-tab-pane>
+
+          <el-tab-pane label="m3u8" name="there">
+              <el-input
+                v-model="textarea3"
+                :rows="10"
+                type="textarea"
+                placeholder="https://xxx.m3u8  , newName"
+              />
+          <!-- <el-divider content-position="left">add headers</el-divider>
+          <el-input
+            v-model="textareaHeader"
+            :rows="5"
+            type="textarea"
+            placeholder="referer: https://tv11.avsee.in/"
+          /> -->
+
           </el-tab-pane>
         </el-tabs>
       <template #footer>
@@ -120,11 +144,12 @@ import {
   getVideoListListActive,
   getVideoListListPause,
    getVideoListListRemove,
+   downM3u8,
 } from '@/api/videoList'
 
 // 全量引入格式化工具 请按需保留
 import { getDictFunc, formatDate, formatBoolean, filterDict,bytesToSize } from '@/utils/format'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ElDescriptions, ElMessage, ElMessageBox, ElNotification } from 'element-plus'
 import { ref, reactive ,onBeforeUnmount} from 'vue'
 import { useUserStore } from '@/pinia/modules/user'
 import {start,close} from '@/utils/npgress'
@@ -139,7 +164,7 @@ const setSearch =()=>{
       start()
       getTableData()
       close()
-  },5000)
+  },8000)
 
 }
 setSearch()
@@ -154,21 +179,45 @@ const path = ref(import.meta.env.VITE_BASE_PATH)
 const createDown =ref(false)
 const activeName = ref('first')
 const textarea = ref('')
+const textareaHeader =ref('')
 const createDownLoad =()=>{
   createDown.value=true
 
 }
+const textarea3 = ref('')
 
 // 立即下载
 const downNow= async ()=>{
    createDown.value=false
    if(activeName.value ==="first"){
     // videoDownloadPath
-    const res = await createVideoList({videoDownloadPath:textarea.value})
+    const res = await createVideoList({videoDownloadPath:textarea.value,videoUrl:textareaHeader.value})
     // console.log("1",textarea.value)
     getTableData()
+   }else if(activeName.value ==="there"){
+    // 下载m3u8
+    let urls =textarea3.value.split('\n')
+    urls.forEach(e=>{
+      let path =''
+      let name =''
+      let paths = e.split(',')
+      console.log(paths)
+      if(paths.length===1){
+        path =paths[0]
+      }else{
+        path =paths[0]
+        name=paths[1]
+      }
+      console.log(path,name)
+      downM3u8({downloadPath:path,fileName:name})
+      ElNotification({
+        title:'success',
+        type:'success',
+        message:'creating ...'
+      })
+    })
+
    }else{
-    // console.log('second')
     getTableData()
    }
 }
@@ -278,21 +327,36 @@ const handleCurrentChange = (val) => {
 // 查询
 // 查询
 const getTableData = async() => {
-
+  tableData.value=[]
   const table = await getVideoListListActive({ page: page.value, pageSize: pageSize.value})
   if (table.code === 0) {
-    tableData.value = table.data.list
-    tableData.value.forEach(e=>{
-      // 文件名
-      let dir = e.dir
-      let path = e.files[0].path ||0 
-      e.fileLength = e.files[0].length 
-      e.completedLength =e.files[0].completedLength || 0
-      let temp = path.replace(dir,"").split('/')
-      // console.log(temp,e.fileLength)
-      e.fileName=path
+    let d =table.data.list
 
-    })
+      d.forEach(de=>{
+        de.files.forEach(fe=>{
+          let td =Object.assign({}, de)
+          td.path=fe.path
+          td.fileLength=fe.length
+          td.completedLength=fe.completedLength
+          tableData.value.push(td)
+        })
+
+      })
+    
+
+  console.log(tableData.value)
+    // tableData.value = table.data.list
+    // tableData.value.forEach(e=>{
+    //   // 文件名
+    //   let dir = e.dir
+    //   let path = e.files[0].path ||0 
+    //   e.fileLength = e.files[0].length 
+    //   e.completedLength =e.files[0].completedLength || 0
+    //   let temp = path.replace(dir,"").split('/')
+    //   // console.log(temp,e.fileLength)
+    //   e.fileName=path
+
+    // })
 
     total.value = table.data.total
     page.value = table.data.page

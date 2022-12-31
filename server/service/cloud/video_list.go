@@ -8,7 +8,9 @@ import (
 	"runtime"
 	"strings"
 
+	a "github.com/flipped-aurora/gin-vue-admin/server/aria2"
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
+	"github.com/flipped-aurora/gin-vue-admin/server/m3u8d"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/cloud"
 	cloudReq "github.com/flipped-aurora/gin-vue-admin/server/model/cloud/request"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/common/request"
@@ -26,9 +28,16 @@ func (videoListService *VideoListService) CreateVideoList(videoList cloud.VideoL
 	downPath := videoList.VideoDownloadPath
 	// fmt.Println("down path:", downPath)
 	urlSlice := utils.SplitUrls(downPath)
+	// headerSlice := utils.SplitUrls(videoList.VideoUrl)
+	// fmt.Println(headerSlice, "header", videoList.VideoUrl)
+	option := a.Option{}
+	// h := headerSlice[0]
+	h := videoList.VideoUrl
+	option.Header = h //目前只取一个header
+	// option.UserAgent = "Chrome"
 	for _, v := range urlSlice {
 		fmt.Println("start downloading::", v)
-		utils.DownloadByUrl(v)
+		utils.DownloadByUrl(v, &option)
 	}
 
 	return nil
@@ -187,7 +196,7 @@ func (videoListService *VideoListService) GetVideoListInfoListRemove(grids reque
 	return err
 }
 
-// 删除任务
+// 下载种子
 func (videoListService *VideoListService) DownLoadTorrent(path string) (err error) {
 	_, err = utils.DownloadTorrent(path)
 	return err
@@ -202,7 +211,7 @@ func (videoListService *VideoListService) GetVideoListInfoListFile(info cloudReq
 	sysType := runtime.GOOS
 	if sysType == "windows" {
 		fmt.Println("Windows system")
-		path = "D:/Program Files (x86)/aria2/aria2-1.34.0/download"
+		path = "D:/Program Files (x86)/aria2/aria2-1.34.0/download/"
 	}
 
 	if info.VideoUrl == "/" {
@@ -333,4 +342,25 @@ func (videoListService *VideoListService) ChangeFileName(path string, fileName s
 func (videoListService *VideoListService) DeleteFile(path string, fileName string) (err error) {
 	err = os.Remove(path)
 	return err
+}
+
+// down load m3u8
+func (videoListService *VideoListService) DownM3u8(path string, fileName string) (err error) {
+	var req m3u8d.RunDownload_Req
+	req.M3u8Url = path
+	savePath := "/home/cloud/mp4/"
+	sysType := runtime.GOOS
+	if sysType == "windows" {
+		fmt.Println("Windows system")
+		savePath = "D:/Program Files (x86)/aria2/aria2-1.34.0/download/"
+	}
+
+	req.SaveDir = savePath
+	req.Insecure = true
+	req.ThreadCount = 16
+	req.FileName = fileName
+
+	fmt.Println("fileName:", fileName)
+	go m3u8d.RunDownload(req)
+	return nil
 }

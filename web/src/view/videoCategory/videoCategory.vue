@@ -32,6 +32,7 @@
             </el-popover>
         </div>
         <el-table
+        border
         ref="multipleTable"
         style="width: 100%"
         tooltip-effect="dark"
@@ -43,6 +44,7 @@
         <el-table-column align="left" label="日期" width="180">
             <template #default="scope">{{ formatDate(scope.row.CreatedAt) }}</template>
         </el-table-column>
+        <el-table-column align="left" label="分类ID" prop="ID" width="120" />
         <el-table-column align="left" label="分类名" prop="categoryName" width="120" />
         <el-table-column align="left" label="分类图片" prop="categoryPic" width="120" />
         <el-table-column align="left" label="按钮组">

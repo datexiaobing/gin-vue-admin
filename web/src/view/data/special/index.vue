@@ -6,9 +6,7 @@
          <el-input v-model="searchInfo.specialName" placeholder="" />
 
         </el-form-item>
-        <el-form-item :label="t('special.category')">
-            
-             <!-- <el-input v-model.number="searchInfo.specialCategory" placeholder="搜索条件" /> -->
+        <!-- <el-form-item :label="t('special.category')">
              <el-select v-model="searchInfo.specialCategory">
                 <el-option
                 v-for="(v,i) in categorys"
@@ -17,8 +15,7 @@
                 :value="v.value">
                 </el-option>
              </el-select>
-
-        </el-form-item>
+        </el-form-item> -->
         <el-form-item>
           <el-button size="small" type="primary" icon="search" @click="onSubmit">{{t('category.search')}}</el-button>
           <el-button size="small" icon="refresh" @click="onReset">{{t('category.reset')}}</el-button>
@@ -51,14 +48,14 @@
         @selection-change="handleSelectionChange"
         >
         <el-table-column type="selection" width="55" />
-
+        <el-table-column align="left" label="ID"  prop="ID" width="120" />
         <el-table-column align="left" :label="t('special.specialName')" prop="specialName" min-width="300" />
-        <el-table-column align="left" :label="t('special.category')"  prop="specialCategory" width="120" >
+        <!-- <el-table-column align="left" :label="t('special.category')"  prop="specialCategory" width="120" >
           <template #default="scope">
             {{scope.row.specialCategory ?filterDict(scope.row.specialCategory ,categorys):t('transform.noCategory')}}
           </template>
-        </el-table-column>
-        <el-table-column align="left" :label="t('special.videoNumber')" prop="specialVideoNum" width="120" />
+        </el-table-column> -->
+        <!-- <el-table-column align="left" :label="t('special.videoNumber')" prop="specialVideoNum" width="120" /> -->
         <el-table-column align="left" :label="t('category.createTime')"  width="180">
             <template #default="scope">{{ formatDate(scope.row.CreatedAt) }}</template>
         </el-table-column>
@@ -91,7 +88,6 @@
           <el-input v-model="formData.specialName" :clearable="true"  placeholder="" />
         </el-form-item>
         <el-form-item :label="t('special.category')" >
-          <!-- <el-input v-model.number="formData.specialCategory" :clearable="true" placeholder="请输入" /> -->
                 <el-select v-model="formData.specialCategory" style="width:100%">
                     <el-option
                     v-for="(v,i) in categorys"
@@ -162,8 +158,8 @@
         <el-form-item :label="t('special.specialName')"  prop="specialName" >
           <el-input v-model="formData1.specialName" :clearable="true"  placeholder="" />
         </el-form-item>
-        <el-form-item :label="t('special.category')" >
-          <!-- <el-input v-model.number="formData.specialCategory" :clearable="true" placeholder="请输入" /> -->
+        <!-- <el-form-item :label="t('special.category')" >
+          
               <el-select v-model="formData1.specialCategory" style="width:100%">
                   <el-option
                   v-for="(v,i) in categorys"
@@ -172,7 +168,7 @@
                   :value="v.value">
                   </el-option>
               </el-select>
-        </el-form-item>
+        </el-form-item> -->
       </el-form>
       <template #footer>
         <div class="dialog-footer">

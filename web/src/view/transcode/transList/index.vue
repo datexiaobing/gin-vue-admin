@@ -7,7 +7,7 @@
                     <el-button icon="Share" @click="getShare"> {{t('videoDownload.share')}} </el-button>
                     <!-- <el-button icon="HelpFilled"> 转码</el-button> -->
                     <el-button icon="Delete"> {{t('videoDownload.delete')}}</el-button>
-                    <el-button icon="Pointer" > {{t('videoDownload.update')}}</el-button>
+                    <el-button icon="Pointer" @click="updateType"> {{t('videoDownload.update')}}</el-button>
                     <el-button icon="Refresh" @click="getTableData"> {{t('videoDownload.refresh')}}</el-button>
                 </el-space>
                 </el-button-group>
@@ -41,7 +41,9 @@
 
         <el-table-column align="left" :label="t('transform.transTypeNum')"  width="120" >
           <template #default="scope">
-            <el-tag size="large" >{{scope.row.transTypeNum ||0}}</el-tag>
+            <el-tag size="large" >
+              {{scope.row.transType ? filterDict(scope.row.transTypeNum,videosTypeNum):0}}
+            </el-tag>
           </template>
         </el-table-column>
         <el-table-column align="left" :label="t('transform.transResolution')" prop="transResolution" width="120" >
@@ -250,6 +252,45 @@
           </div>
         </template>
       </el-dialog>
+      <!-- 修改分类 -->
+      <el-dialog v-model="dialogChange"  :title="t('transform.change')">
+        <el-form :model="formDataChange" label-position="left" label-width="90px">
+        <el-form-item :label="t('transform.transOutName')"  >
+            <el-input v-model="formDataChange.transOutName"   />
+        </el-form-item>
+
+        <el-form-item :label="t('transform.transTypeNum')"  >
+          <el-select v-model="formDataChange.transTypeNum" placeholder="">
+            <el-option
+            v-for="item in videosTypeNum"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value">
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item :label="t('transform.category')"  >
+          <el-select v-model="formDataChange.transType" placeholder="">
+            <el-option
+            v-for="item in videosType"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value">
+            </el-option>
+          </el-select>
+        </el-form-item>
+
+        </el-form>
+
+        <template #footer>
+          <div class="dialog-footer">
+            <!-- <el-button type="primary" @click="closeDialogShare">关闭</el-button> -->
+            <el-button type="primary" @click="configChange">
+              {{t('transform.change')}}
+              </el-button>
+          </div>
+        </template>
+      </el-dialog>
 
     </div>
 </template>
@@ -269,6 +310,9 @@ import {
 import {
   getVideoCategoryList
 } from '@/api/videoCategory'
+import{  
+  getVideoSpecialList
+} from '@/api/videoSpecial'
 // 全量引入格式化工具 请按需保留
 import { getDictFunc, formatDate, formatBoolean, filterDict } from '@/utils/format'
 import { ElMessage, ElMessageBox, ElNotification } from 'element-plus'
@@ -276,6 +320,8 @@ import { ref, reactive,watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 const { t } = useI18n()
 
+// 多选数据
+const multipleSelection = ref([])
 // const base_host="http://127.0.0.1"
 const base_host= ref(import.meta.env.VITE_BASE_PATH)
 // 弹窗控制标记
@@ -298,9 +344,9 @@ const upQiniu=async(row)=>{
   const d = await uploadQiniu(row)
   if(d.code===0){
     ElNotification({
-      title:'成功',
+      title:'success',
       type:'success',
-      message:'正在上传到七牛....'
+      message:'Upload To Qiniu....'
     })
   }
 }
@@ -311,15 +357,16 @@ const upAli=async(row)=>{
   const d = await uploadAli(row)
   if(d.code===0){
     ElNotification({
-      title:'成功',
+      title:'success',
       type:'success',
-      message:'正在上传到阿里....'
+      message:'Upload To Ali....'
     })
   }
 }
 
-
+// 获取 分类 专辑
 const videosType = ref([])
+const videosTypeNum = ref([])
 const getVideosTypes = async()=>{
     const d = await getVideoCategoryList({page:0,pageSize:50})
     // console.log(d)
@@ -332,8 +379,68 @@ const getVideosTypes = async()=>{
       })
     }
 }
-
+const getVideosTypesNum = async()=>{
+    const d = await getVideoSpecialList({page:0,pageSize:50})
+    // console.log(d)
+    if(d.code === 0){
+      d.data.list.forEach(element => {
+        videosTypeNum.value.push({
+          value:element.ID,
+          label:element.specialName
+        })
+      })
+    }
+}
 getVideosTypes()
+getVideosTypesNum()
+
+// 更新分类 专辑
+const dialogChange =ref(false)
+const updateType = ()=>{
+  let d =multipleSelection.value 
+  if(d.length ===0){
+    ElNotification({
+      title:"no select",
+      type:"error",
+      message:"please chose a video"
+    })
+  }else if(d.length >1){
+    ElNotification({
+      title:"only one",
+      type:"warning",
+      message:"only one video can be chose "
+    })
+  }else{
+    // console.log(d)
+    
+    formDataChange.value.transOutName = d[0].transOutName
+    formDataChange.value.transType = d[0].transType
+    formDataChange.value.transTypeNum = d[0].transTypeNum
+    dialogChange.value=true
+  }
+}
+const configChange =async ()=>{
+  let d =multipleSelection.value[0] 
+  d.transType =formDataChange.value.transType
+  d.transTypeNum =  formDataChange.value.transTypeNum
+  d.transOutName = formDataChange.value.transOutName
+  // console.log(d)
+  d.transPost =1 //重置推送状态
+  const res = await updateFileTrans(d)
+  if(res.code===0){
+      ElMessage({
+      type: 'success',
+      message: 'success !'
+    })
+  }
+   dialogChange.value=false
+}
+
+const formDataChange=ref({
+  transType:0,
+  transTypeNum:0,
+  transOutName:''
+})
 
 const drawtext = ref(null)
 
@@ -479,8 +586,7 @@ const setOptions = async () =>{
 setOptions()
 
 
-// 多选数据
-const multipleSelection = ref([])
+
 // 多选
 const handleSelectionChange = (val) => {
     multipleSelection.value = val

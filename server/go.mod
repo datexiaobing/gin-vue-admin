@@ -28,6 +28,8 @@ require (
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/mitchellh/mapstructure v1.2.2 // indirect
 	github.com/mojocn/base64Captcha v1.3.1
+	github.com/orestonce/cdb v0.0.0-20220531135307-ef9ed0031091
+	github.com/orestonce/gopool v0.0.0-20220508090328-d7d56d45b171
 	github.com/otiai10/copy v1.7.0
 	github.com/pelletier/go-toml v1.6.0 // indirect
 	github.com/pkg/errors v0.9.1
@@ -48,6 +50,7 @@ require (
 	github.com/thep0y/go-logger v1.1.1
 	github.com/unrolled/secure v1.0.7
 	github.com/xuri/excelize/v2 v2.4.1
+	github.com/yapingcat/gomedia v0.0.0-20221103144501-afce69604d70
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/zap v1.16.0
 	golang.org/x/crypto v0.0.0-20220411220226-7b82a4e95df4

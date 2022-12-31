@@ -14,9 +14,9 @@ func SplitUrls(s string) []string {
 // var client *aria2go.Aria2Client
 
 // Download 下载文件
-func DownloadByUrl(url string) (gid string) {
+func DownloadByUrl(url string, option *aria2go.Option) (gid string) {
 	client := aria2go.NewAria2Client("8888")
-	gid, err := client.Download(url)
+	gid, err := client.Download(url, option)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -72,6 +72,7 @@ func RemoveTask(gid string) (err error) {
 	return err
 }
 
+// 下载种子
 func DownloadTorrent(path string) (gid string, err error) {
 	client := aria2go.NewAria2Client("8888")
 	gid, err = client.DownloadWithLocalTorrent(path)

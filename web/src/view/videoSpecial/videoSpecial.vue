@@ -48,11 +48,12 @@
         <el-table-column align="left" label="日期" width="180">
             <template #default="scope">{{ formatDate(scope.row.CreatedAt) }}</template>
         </el-table-column>
+        <el-table-column align="left" label="专辑ID" prop="ID" width="120" />
         <el-table-column align="left" label="专辑名称" prop="specialName" width="120" />
-        <el-table-column align="left" label="分类" prop="specialCategory" width="120" />
+        <!-- <el-table-column align="left" label="分类" prop="specialCategory" width="120" /> -->
         <el-table-column align="left" label="视频数量" prop="specialVideoNum" width="120" />
         <el-table-column align="left" label="专辑图片" prop="specialPic" width="120" />
-        <el-table-column align="left" label="按钮组">
+        <el-table-column align="left" label="操作">
             <template #default="scope">
             <el-button type="primary" link icon="edit" size="small" class="table-button" @click="updateVideoSpecialFunc(scope.row)">变更</el-button>
             <el-button type="primary" link icon="delete" size="small" @click="deleteRow(scope.row)">删除</el-button>
@@ -71,7 +72,7 @@
             />
         </div>
     </div>
-    <el-dialog v-model="dialogFormVisible" :before-close="closeDialog" title="弹窗操作">
+    <el-dialog v-model="dialogFormVisible" :before-close="closeDialog" title="操作">
       <el-form :model="formData" label-position="right" ref="elFormRef" :rules="rule" label-width="80px">
         <el-form-item label="专辑名称:"  prop="specialName" >
           <el-input v-model="formData.specialName" :clearable="true"  placeholder="请输入" />

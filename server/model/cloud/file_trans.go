@@ -22,8 +22,8 @@ type FileTrans struct {
 	TransOutName          string  `json:"transOutName" form:"transOutName" gorm:"column:trans_out_name;comment:转换后的名;size:255;"`
 	TransUuid             string  `json:"transUuid" form:"transUuid" gorm:"column:trans_uuid;comment:uuid;size:255;"`
 	TransStatus           int     `json:"transStatus" form:"transStatus" gorm:"column:trans_status;comment:1正在2完成;size:10;default:1"`
-	TransType             *int    `json:"transType" form:"transType" gorm:"column:trans_type;comment:专辑;size:10;default:0;"`
-	TransTypeNum          *int    `json:"transTypeNum" form:"transTypeNum" gorm:"column:trans_type_num;comment:专辑视频数量;size:10;"`
+	TransType             int     `json:"transType" form:"transType" gorm:"column:trans_type;comment:分类ID;size:10;default:0;"`
+	TransTypeNum          int     `json:"transTypeNum" form:"transTypeNum" gorm:"column:trans_type_num;comment:专辑ID;default:0;size:10;"`
 	TransResolution       int     `json:"transResolution" form:"transResolution" gorm:"column:trans_resolution;comment:分辨率;size:10;default:3"`
 	TransDuration         string  `json:"transDuration" form:"transDuration" gorm:"column:trans_duration;comment:时长;size:255;"`
 	TransSeektimeHeard    int     `json:"transSeektimeHeard" form:"transSeektimeHeard" gorm:"column:trans_seektime_heard;comment:跳过片头秒;size:10;"`

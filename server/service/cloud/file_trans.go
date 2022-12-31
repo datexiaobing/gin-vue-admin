@@ -40,6 +40,15 @@ func (fileTransService *FileTransService) write(msg float64, file cloud.FileTran
 	if msg > 99.99 {
 		// file.TransStatus = 2
 		global.GVA_DB.Table("file_trans").Where("trans_uuid =?", file.TransUuid).Update("trans_status", 2)
+		// 上传七牛/阿里,如果标志位=2，则上传到对应的oss
+		if file.TransOssQiniuStatus == 2 {
+			// up to qiniu
+			fileTransService.UploadQiniu(file)
+		} else if file.TransOssAliStatus == 2 {
+			// up to ali
+			fileTransService.UploadAli(file)
+		}
+
 	}
 
 	global.GVA_DB.Table("file_trans").Where("trans_uuid=?", file.TransUuid).Update("trans_progress_rate", msg)
@@ -200,7 +209,7 @@ func (fileTransService *FileTransService) GetFileTransInfoList(info cloudReq.Fil
 	if info.TransStatus > 0 {
 		db = db.Where("trans_status = ?", info.TransStatus)
 	}
-	if info.TransType != nil {
+	if info.TransType != 0 {
 		db = db.Where("trans_type = ?", info.TransType)
 	}
 	if info.TransOssStatus > 0 {
@@ -257,7 +266,7 @@ func (fileTransService *FileTransService) GetShareList(share request.IdsShareReq
 		// 查看七牛状态是否为3，只有已上传到七牛的再获取七牛防盗链
 		// fmt.Println("qiniu status:", v.TransOssQiniuStatus)
 		if v.TransOssQiniuStatus == 3 {
-			qiniu_base_url := "http://api.opkakao.com"
+			qiniu_base_url := "https://api.opkakao.com"
 			qiniu_path := "video/hls/" + uuid + "/indexq.m3u8"      //七牛上的动态文件
 			qiniu_key := "b68bbea9219bc8aa778a4dab2d8b2f89eb9a45a8" //备用key:ffb8feba2288f2aa16993588c58adfabbdb9adaa
 			// bucket := "8886media"
@@ -336,10 +345,10 @@ func (fileTransService *FileTransService) GetShareList(share request.IdsShareReq
 			old_m3_path := filepath.Join(base_path, uuid, "index.m3u8")
 			new_list, _ := myoos.AliReadIndexM3u8(old_m3_path, ali_save_base_path, aliParams)
 			tools.GenerateNewM3u8(new_list, new_ali_path)
-			// 上传新的qiniu.m3u8文件
-			myoos.AliUpload(aliParams, new_ali_path, ali_save_base_path+"index.m3u8")
+			// 上传新的ali.m3u8文件
+			myoos.AliUpload(aliParams, new_ali_path, ali_save_base_path+"indexq.m3u8")
 			// 获取新的m3u8加密链接
-			new_ali_m3u8_singUrl := myoos.SignUrl(aliParams, ali_save_base_path+"index.m3u8")
+			new_ali_m3u8_singUrl := myoos.SignUrl(aliParams, ali_save_base_path+"indexq.m3u8")
 			// fmt.Println(new_ali_m3u8_singUrl)
 			fileShare.AliUrl = new_ali_m3u8_singUrl
 
@@ -421,9 +430,14 @@ func (fileTransService *FileTransService) GenerateNewM3u8(uuid string,
 func (fileTransService *FileTransService) UploadQiniu(file cloud.FileTrans) (err error) {
 
 	go fileTransService.UpToQiniu(file)
-	// 此处修改状态为正在上传...1等待2正在3已上传
-	err = global.GVA_DB.Model(cloud.FileTrans{}).Where("id =?", file.ID).Update("trans_oss_qiniu_status", 2).Error
-	return err
+	if file.TransOssQiniuStatus == 1 {
+		// 此处修改状态为正在上传...1等待2正在3已上传
+		err = global.GVA_DB.Model(cloud.FileTrans{}).Where("id =?", file.ID).Update("trans_oss_qiniu_status", 2).Error
+		return err
+	} else {
+		return nil
+	}
+
 }
 
 func (fileTransService *FileTransService) UpToQiniu(file cloud.FileTrans) {
@@ -455,6 +469,7 @@ func (fileTransService *FileTransService) UpToQiniu(file cloud.FileTrans) {
 		myoos.QiniuUpload(form_s, to_s, qiniu)
 
 	}
+	fmt.Println("upload qiniu success !")
 	// 更新七牛oss为已上传
 	global.GVA_DB.Model(cloud.FileTrans{}).Where("id =?", file.ID).Update("trans_oss_qiniu_status", 3)
 }

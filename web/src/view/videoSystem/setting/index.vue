@@ -14,6 +14,13 @@
                     </el-option>
                 </el-select>
                 </el-form-item>
+                <el-form-item :label="t('videoList.oss')">
+                    <el-radio-group v-model="formData.ossStatus" @change="changeOss">
+                        <el-radio label="1"  border>Qiniu</el-radio>
+                        <el-radio label="2"  border>Ali</el-radio>
+                    </el-radio-group>
+                </el-form-item>
+
                 <el-form-item :label="t('videoList.SeektimeHeard')"  prop="transSeektimeHeard" >
                 <!-- <el-input v-model.number="formData.transSeektimeHeard" :clearable="true" placeholder="请输入" /> -->
                 <el-slider v-model="formData.transSeektimeHeard" />
@@ -112,6 +119,19 @@ const { t } = useI18n()
 
 const paoma =ref(false)
 const ali =ref(false)
+const radio1 = ref('0')
+
+const changeOss =  (e)=>{
+    // if(e==='2'){
+    //   formData.value.transOssAliStatus=2
+    //   formData.value.transOssQiniuStatus=1
+    // }else if(e==='1'){
+    //   formData.value.transOssQiniuStatus=2
+    //   formData.value.transOssAliStatus=1
+    // }
+    console.log(e)
+}
+
 
 const transResolutionOption =ref([{label:'1080P',value:3},{label:'720P',value:2},{label:'360p',value:1}])
 

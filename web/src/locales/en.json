@@ -526,14 +526,15 @@
 		"drawtextDuration":"Drawtext Duration",
 		"drawtextInterval":"Drawtext Interval",
 		"cancel":"Cancel",
-		"ali":"AliOSS"
+		"ali":"AliOSS",
+		"oss":"Chose Oss"
 	},
 	"transform":{
 		"transInputName":"Source Video Name",
 		"transOutName":"New Video Name",
 		"category":"Category",
 		"noCategory":"No Category",
-		"transTypeNum":"Category Number",
+		"transTypeNum":"Special",
 		"transResolution":"Resolution",
 		"transDuration":"Duration",
 		"transSubtitle":"Subtitle",
@@ -558,7 +559,8 @@
 		"qn":"QiNiuURL",
 		"al":"AliURL",
 		"content":"Content",
-		"fetch":"Fetch"
+		"fetch":"Fetch",
+		"change":"Change "
 		
 	},
 	"category":{

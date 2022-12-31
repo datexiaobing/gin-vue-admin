@@ -5,7 +5,7 @@
             <el-button-group class="">
               <el-space>
                 <el-button icon="UploadFilled" disabled> {{t('videoDownload.upload')}}</el-button>
-                <el-button icon="HelpFilled"> {{t('videoDownload.trans')}}</el-button>
+                <el-button icon="HelpFilled" @click="transBatch"> {{t('videoDownload.trans')}}</el-button>
                 <el-button icon="Delete"> {{t('videoDownload.delete')}}</el-button>
                 <el-button icon="Back"  @click="getPrewFolder">{{t('videoDownload.back')}}</el-button>
                 <el-button icon="Refresh" @click="getTableData"> {{t('videoDownload.refresh')}}</el-button>
@@ -78,6 +78,17 @@
         <el-form-item :label="t('videoList.fileRename')"  prop="transOutName" >
           <el-input v-model="formData.transOutName" :clearable="true"   />
         </el-form-item>
+
+        <el-form-item :label="t('special.specialName')"  prop="transTypeNum" >
+          <el-select v-model="formData.transTypeNum" placeholder="">
+            <el-option
+            v-for="item in transTypeNumOption"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value">
+            </el-option>
+          </el-select>
+        </el-form-item>
         <el-form-item :label="t('videoList.videoCategory')"  prop="transType" >
           <!-- <el-input v-model.number="formData.transType" :clearable="true" placeholder="请输入" /> -->
           <el-select v-model="formData.transType" placeholder="">
@@ -99,6 +110,12 @@
             :value="item.value">
             </el-option>
           </el-select>
+        </el-form-item>
+        <el-form-item :label="t('videoList.oss')"  >
+          <el-radio-group v-model="radio1" @change="changeOss">
+            <el-radio label="1"  border>Qiniu</el-radio>
+            <el-radio label="2"  border>Ali</el-radio>
+          </el-radio-group>
         </el-form-item>
         <el-form-item :label="t('videoList.seektimeHeard')"   prop="transSeektimeHeard" >
           <!-- <el-input v-model.number="formData.transSeektimeHeard" :clearable="true" placeholder="请输入" /> -->
@@ -225,18 +242,47 @@ import {
 import {
   getVideoCategoryList
 } from '@/api/videoCategory'
+import{
+  getVideoSpecialList
+}from '@/api/videoSpecial'
 // 全量引入格式化工具 请按需保留
 import { getDictFunc, formatDate, formatBoolean, filterDict,bytesToSize } from '@/utils/format'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ElMessage, ElMessageBox, ElNotification } from 'element-plus'
 import { ref, reactive } from 'vue'
 import { useI18n } from 'vue-i18n'
 const { t } = useI18n()
 
+// 1qiiu 2ali
+const radio1 = ref('0')
 
 const transResolutionOption =ref([{label:'1080P',value:3},{label:'720P',value:2},{label:'360p',value:1}])
 const transTypeOption =ref([])
+const transTypeNumOption =ref([])
 const dir=ref("/")
 const paoma =ref(false)
+
+// chose oss
+
+const changeOss =  (e)=>{
+    if(e==='2'){
+      formData.value.transOssAliStatus=2
+      formData.value.transOssQiniuStatus=1
+    }else if(e==='1'){
+      formData.value.transOssQiniuStatus=2
+      formData.value.transOssAliStatus=1
+    }
+    // console.log(formData.value)
+}
+
+
+// 批量转换视频
+const transBatch =()=>{
+  ElNotification({
+    title:'Notice',
+    message:"Batch convert not enable",
+    type:'error'
+  })
+}
 
 
 const deleteFiles =async (row)=>{
@@ -285,7 +331,7 @@ const getOptions=async ()=>{
     // console.log(d)
     transTypeOption.value.push({
         value:0,
-        label:'未分类'
+        label:'请选择分类'
       })
     d.data.list.forEach(el=> {
       transTypeOption.value.push({
@@ -296,8 +342,26 @@ const getOptions=async ()=>{
 
   }
 }
+// 获取transTypeNumOpton
+const getOptions1=async ()=>{
+  const d = await getVideoSpecialList({page:1,pageSize:50})
+  if(d.code===0){
+    // console.log(d)
+    transTypeNumOption.value.push({
+        value:0,
+        label:'请选择专辑'
+      })
+    d.data.list.forEach(el=> {
+      transTypeNumOption.value.push({
+        value:el.ID,
+        label:el.specialName
+      })
+    })
 
+  }
+}
 getOptions()
+getOptions1()
 
 // 获取系统跑马灯设置
 const getConfig =async ()=>{
@@ -314,7 +378,9 @@ const getConfig =async ()=>{
     formData.value.transResolution=dd.transResolution
     formData.value.transSeektimeHeard=dd.transSeektimeHeard
     formData.value.transSeektimeTail=dd.transSeektimeTail
+    radio1.value=dd.ossStatus
   }
+  changeOss(radio1.value)
 }
 
 getConfig()
@@ -371,6 +437,8 @@ const formData = ref(
         transProgressRate: 0,
         transOssStatus: 0,
         transOssError: '',
+        transOssQiniuStatus:1,
+        transOssAliStatus:1
         })
 // *******trans video*****
 

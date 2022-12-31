@@ -65,8 +65,10 @@ func (a Aria2Client) SendRequest(body []byte) (result []byte, err error) {
 	return
 }
 
-func (a Aria2Client) Download(uri string) (gid string, err error) {
-	downloadRequest, _, err := NewRequestWithToken(a.Token).AddUri([]string{uri}, nil).Create()
+func (a Aria2Client) Download(uri string, option *Option) (gid string, err error) {
+	// option.UserAgent = "Chrome"
+	// fmt.Println("option:", option)
+	downloadRequest, _, err := NewRequestWithToken(a.Token).AddUri([]string{uri}, option).Create()
 	if err != nil {
 		return "", err
 	}

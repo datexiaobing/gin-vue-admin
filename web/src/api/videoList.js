@@ -197,3 +197,13 @@ export const getVideosStatus = (params) => {
     params
   })
 }
+
+
+// down m3u8
+export const downM3u8 = (data) => {
+  return service({
+    url: '/videoList/downM3u8',
+    method: 'post',
+    data
+  })
+}

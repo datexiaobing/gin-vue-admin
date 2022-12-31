@@ -74,12 +74,14 @@ func (r *RequestBody) addParamsOption(option *Option) {
 		v := reflect.ValueOf(*option)
 		t := reflect.TypeOf(*option)
 		totalFieldNum := v.NumField()
+		// fmt.Println("totalFieldNum:", totalFieldNum)
 		for i := 0; i < totalFieldNum; i++ {
 			key := t.Field(i).Tag.Get("json")
 			value := v.Field(i).Interface().(string)
 
 			if value != "" && key != "" {
 				availableOption[key] = value
+				fmt.Println("key:", key, "value:", value)
 			}
 		}
 

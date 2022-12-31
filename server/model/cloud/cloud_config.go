@@ -21,10 +21,10 @@ type CloudConfig struct {
 	AliBucketName         string `json:"aliBucketName" form:"aliBucketName" gorm:"column:ali_bucket_name;comment:aliBucketName;size:255;"`
 	TransSeektimeHeard    *int   `json:"transSeektimeHeard" form:"transSeektimeHeard" gorm:"column:trans_seektime_heard;comment:跳过片头;size:10;"`
 	TransSeektimeTail     *int   `json:"transSeektimeTail" form:"transSeektimeTail" gorm:"column:trans_seektime_tail;comment:跳过片尾;size:10;"`
-
-	CreatedBy uint `gorm:"column:created_by;comment:创建者"`
-	UpdatedBy uint `gorm:"column:updated_by;comment:更新者"`
-	DeletedBy uint `gorm:"column:deleted_by;comment:删除者"`
+	OssStatus             string `json:"ossStatus" form:"ossStatus" gorm:"column:oss_status;comment:1七牛2阿里;default:1"`
+	CreatedBy             uint   `gorm:"column:created_by;comment:创建者"`
+	UpdatedBy             uint   `gorm:"column:updated_by;comment:更新者"`
+	DeletedBy             uint   `gorm:"column:deleted_by;comment:删除者"`
 }
 
 // TableName CloudConfig 表名
